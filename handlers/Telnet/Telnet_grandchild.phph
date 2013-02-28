@@ -1,0 +1,7 @@
+#include Telnet_child.phph
+
+#ifdef HAVE_NAMESPACE
+#define CLASS_TELNET_LINE_INPUT_CONNECTION \Nanoserv\Telnet\Line_Input_Connection
+#else
+#define CLASS_TELNET_LINE_INPUT_CONNECTION NS_Telnet_Line_Input_Connection
+#endif

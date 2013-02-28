@@ -1,0 +1,34 @@
+#!{{{PHP_BIN}}}
+<?php
+
+#include ../handlers/handlers.phph
+
+require "{{{FILENAME_CORE}}}";
+
+class http_head_client extends {{{CLASS_CONNECTION_HANDLER}}} {
+
+	function on_Connect() {
+
+		$this->Write("HEAD / HTTP/1.0\r\n\r\n");
+
+	}
+
+	public function on_Read($data) {
+
+		echo $data;
+
+	}
+
+	public function on_Disconnect() {
+
+		echo "\n";
+		exit();
+
+	}
+
+}
+
+{{{CLASS_CORE}}}::New_Connection("tcp://www.google.com:80", "http_head_client")->Connect();
+{{{CLASS_CORE}}}::Run();
+
+?>

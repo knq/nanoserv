@@ -1,0 +1,80 @@
+#!{{{PHP_BIN}}}
+<?php
+
+#include ../handlers/handlers.phph
+
+/*
+
+simple {{{CLASS_SHARED_OBJECT}}} and {{{CLASS_CORE}}}::Fork() example
+
+this program outputs :
+
+[23277] master process launched, forking
+[23278] child process launched
+[23277] setting value to 1000
+[23278] $so->value = 1000
+[23277] setting value to 2000
+[23278] $so->value = 2000
+[23277] setting value to 3000
+[23278] $so->value = 3000
+[23277] setting value to 4000
+[23278] $so->value = 4000
+[23277] setting value to 5000
+[23278] $so->value = 5000
+[23277] 10000 IPC ops in 0.69 sec.
+
+*/
+
+require "{{{FILENAME_CORE}}}";
+
+function pecho($s) {
+
+	echo "[".posix_getpid()."] {$s}\n";
+
+}
+
+class foo {
+
+	public $value = 0;
+
+	public function set($v) {
+
+		if (!($v % 1000)) pecho("setting value to {$v}");
+
+		$this->value = $v;
+
+	}
+
+	public function done($t) {
+
+		pecho("10000 IPC ops in ".sprintf("%.2f", $t)." sec.");
+		exit();
+
+	}
+
+}
+
+$o = new foo();
+$so = {{{CLASS_CORE}}}::New_Shared_Object($o);
+
+pecho("master process launched, forking");
+
+if ({{{CLASS_CORE}}}::Fork() > 0) {{{CLASS_CORE}}}::Run();
+
+pecho("child process launched");
+
+$t = microtime(true);
+
+for ($a=1; $a<=5000; $a++) {
+
+	$so->set($a);
+
+	if (($test = $so->value) !== $a) pecho("ERROR: $test != $a");
+
+	if (!($a % 1000)) pecho('$so->value = '.$test);
+
+}
+
+$so->done(microtime(true) - $t);
+
+?>

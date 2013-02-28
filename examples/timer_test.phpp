@@ -1,0 +1,33 @@
+#!{{{PHP_BIN}}}
+<?
+
+#include ../handlers/handlers.phph
+
+require "{{{FILENAME_CORE}}}";
+
+class timer_test extends {{{CLASS_CONNECTION_HANDLER}}} {
+
+	public $cd = 10;
+
+	function on_Accept() {
+
+		$this->Write("starting countdown in 5 seconds ... ");
+
+		{{{CLASS_CORE}}}::New_Timer(5, array($this, "Countdown"));
+
+	}
+
+	function Countdown() {
+
+		$this->Write($this->cd--." ");
+		
+		{{{CLASS_CORE}}}::New_Timer(0.5, array($this, $this->cd ? "Countdown" : "Disconnect"));
+
+	}
+
+}
+
+{{{CLASS_CORE}}}::New_Listener("tcp://0.0.0.0:999", "timer_test")->Activate();
+{{{CLASS_CORE}}}::Run();
+
+?>

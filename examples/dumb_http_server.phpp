@@ -1,0 +1,26 @@
+#!{{{PHP_BIN}}}
+<?php
+
+#include ../handlers/HTTP/HTTP_child.phph
+
+require "{{{FILENAME_HTTP}}}";
+
+#ifdef HAVE_NAMESPACE
+use {{{CLASS_CORE}}} as Nanoserv;
+
+#endif
+
+class dumb_httpd extends {{{CLASS_HTTP_SERVER}}} {
+
+	public function on_Request($url) {
+
+		return "You asked for url : <b>{$url}</b>\n";
+
+	}
+
+}
+
+Nanoserv::New_Listener("tcp://0.0.0.0:800", "dumb_httpd")->Activate();
+Nanoserv::Run();
+
+?>

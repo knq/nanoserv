@@ -1,0 +1,205 @@
+#!{{{PHP_BIN}}}
+<?php
+
+#include ../handlers/handlers.phph
+
+/*
+
+This example demonstrates how easily you can implement parallel processing 
+with queues between a master process and any number of 
+Nanoserv::Fork()ed workers using the {{{CLASS_SHARED_OBJECT}}} class.
+
+Here is the output this script gives on a quad core CPU, for different values 
+of NUM_CHILDREN :
+
+NUM_CHILDREN = 1
+[4416] master process launched, forking 1 worker(s) ...
+[4416] worker(s) ready (4417)
+[4417] finished work on element #20 in 0.16 sec.
+[4417] finished work on element #40 in 0.16 sec.
+[4417] finished work on element #60 in 0.16 sec.
+[4417] finished work on element #80 in 0.16 sec.
+[4417] finished work on element #100 in 0.15 sec.
+[4416] work finished in 15.57 sec
+
+NUM_CHILDREN = 2
+[4678] master process launched, forking 2 worker(s) ...
+[4678] worker(s) ready (4679,4680)
+[4679] finished work on element #20 in 0.16 sec.
+[4679] finished work on element #40 in 0.16 sec.
+[4679] finished work on element #60 in 0.16 sec.
+[4679] finished work on element #80 in 0.16 sec.
+[4679] finished work on element #100 in 0.16 sec.
+[4678] work finished in 8.12 sec
+
+NUM_CHILDREN = 4
+[4739] master process launched, forking 4 worker(s) ...
+[4739] worker(s) ready (4740,4741,4742,4743)
+[4740] finished work on element #20 in 0.15 sec.
+[4740] finished work on element #40 in 0.17 sec.
+[4740] finished work on element #60 in 0.16 sec.
+[4740] finished work on element #80 in 0.16 sec.
+[4742] finished work on element #100 in 0.16 sec.
+[4739] work finished in 4.11 sec
+
+NUM_CHILDREN = 8
+[4788] master process launched, forking 8 worker(s) ...
+[4788] worker(s) ready (4789,4790,4791,4792,4793,4794,4795,4796)
+[4794] finished work on element #20 in 0.35 sec.
+[4795] finished work on element #40 in 0.31 sec.
+[4790] finished work on element #60 in 0.30 sec.
+[4795] finished work on element #80 in 0.29 sec.
+[4791] finished work on element #100 in 0.21 sec.
+[4788] work finished in 4.06 sec
+
+As you can see, the processing speed scales linearly with the number of 
+worker processes, until we reach more workers than available CPU cores.
+
+Also had I run it on a 8-core CPU, the last test with 8 workers would 
+have completed in about 2 seconds.
+
+*/
+
+define("NUM_CHILDREN", 4);
+define("WORK_LOAD", 100);
+
+require "{{{FILENAME_CORE}}}";
+
+#ifdef HAVE_NAMESPACE
+use {{{CLASS_CORE}}} as Nanoserv;
+
+#endif
+
+function pecho($s) {
+
+	echo "[".posix_getpid()."] {$s}\n";
+
+}
+
+class My_Queue {
+
+	// overly simple queue/dequeue class
+	
+	public $elements = array();
+	public $num_done = 0;
+
+	public function Enqueue($element) {
+
+		$this->elements[] = $element;
+	
+	}
+
+	public function Dequeue($num_done) {
+
+		$this->num_done += $num_done;
+		
+		return array_shift($this->elements);
+	
+	}
+
+}
+
+class My_Worker {
+
+	static public $queue;
+	
+	public function Do_Work($element) {
+
+		$mt = microtime(true);
+		
+		// Consume some CPU time
+		for ($a = 0; $a < 3000000; $a++);
+	
+		if ($element % 20 === 0) {
+		
+			// Be verbose for every multiple of 20
+			pecho("finished work on element #{$element} in " . number_format(microtime(true) - $mt, 2) . " sec.");
+
+		}
+	
+	}
+
+	public function Run() {
+
+		$processed = 0;
+		
+		while (true) {
+
+			if ($data = self::$queue->Dequeue($processed)) {
+
+				// Do the work
+		
+				self::Do_Work($data);
+
+				$processed = 1;
+
+			} else {
+
+				// Or sleep if there's nothing to do
+				
+				usleep(50000);
+
+				$processed = 0;
+			
+			}
+		
+		}
+	
+	}
+
+}
+
+// The shared object must be created before Nanoserv::Fork()ing
+My_Worker::$queue = Nanoserv::New_Shared_Object(new My_Queue());
+
+pecho("master process launched, forking " . NUM_CHILDREN . " worker(s) ...");
+
+$pids = array();
+
+for ($a = 0; $a < NUM_CHILDREN; $a++) {
+
+	if (($pid = Nanoserv::Fork()) === 0) {
+		
+		// Run the child process
+		My_Worker::Run();
+	
+	} else {
+
+		$pids[] = $pid;
+
+	}
+
+}
+
+pecho("worker(s) ready (" . implode(",", $pids) . ")");
+
+$t = time();
+$b = 0;
+
+$start_mt = microtime(true);
+
+while (My_Worker::$queue->num_done < WORK_LOAD) {
+
+	Nanoserv::Run(10);
+
+	if ((time() !== $t) || (count(My_Worker::$queue->elements) < NUM_CHILDREN)) {
+
+		// Fill the queue every second or when it's almost empty
+		
+		for ($a = 0; ($a < NUM_CHILDREN * 2) && ($b < WORK_LOAD); $a++) {
+			
+			My_Worker::$queue->Enqueue(++$b);
+
+		}
+	
+		$t = time();
+
+	}
+
+}
+
+pecho("work finished in " . number_format(microtime(true) - $start_mt, 2) . " sec");
+
+foreach ($pids as $pid) posix_kill($pid, SIGTERM);
+
+?>

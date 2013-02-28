@@ -1,0 +1,130 @@
+2.1.1 - 2011/11/29
+
+- Added asynchronous HTTP server class (see handlers/HTTP/Server)
+- Speed optimizations in core and HTTP, 10-12% more reqs/s with ab -k -c200
+- Fixed stream write buffers and Socket::Write_From_Stream()
+- Fixed delayed handling of outgoing connections timeouts
+- Fixed descriptor leak when __destruct() was delayed after peer disconnect
+- Fixed Makefile so "make install" works correctly on OS X
+
+
+2.1.0 - 2010/09/17
+
+- Added support in core for unix sockets (use "unix://path/to/sockname" format)
+- Write buffers optimizations (gives 15 to 25% more reqs/s with "ab -k -c200")
+- Added option to deactivate a listener without closing its listening socket
+- Added Telnet protocol handler (handlers/Telnet/Connection.php)
+- Added JSON_RPC base server classes (see handlers/HTTP/JSON_RPC/)
+- Server sockets might now throw an "unknown transport/crypto type" exception
+- Added (Static|Stream)_Write_Buffer that inherit the now abstract Write_Buffer
+- Added interface I_Write_Buffer implemented in Static and Stream write buffers
+- Added Connection_Handler::Stream_Write() method
+- Fixed XML_RPC server so that non typed params are cast to string
+- Fixed server SSL/TLS handshake timeout with high latency connections
+- Fixed SOAP handler ReflectionClass error in namespace build
+- Fixed SOAP decoder to work with latest versions of PHP's simplexml extension
+- Fixed SOAP handlers include path in no-namespace build
+- Fixed compatibility problems in configure and Makefile
+- Fixed "self::" callbacks for PHP versions lower than 5.3
+
+
+2.0.3 - 2010/01/13
+
+- Added method Socket::Block_Reads() to help implement flow control
+- Fixed a bug when timers could be delayed by a long call to select()
+
+
+2.0.2 - 2009/12/05
+
+- Fixed bug when adding a timer while in a timer callback (yo dawg!)
+
+
+2.0.1 - 2009/11/10
+
+- Added optional compression to the HTTP server (deflate, gzip and compress)
+- Added examples/ipc_queues.php as an example for IPC processing queues
+- Added method Core::Get_Timers(), returns all registered and active timers
+- Added microsecond precision to Timers (specify a float instead of an int)
+- Fixed a missing carriage return + line feed in handlers/HTTP/Server
+- Fixed SimpleXMLElement error in XML-RPC server with namespaces enabled
+- Fixed php open tags (short -> long) in example scripts
+- Fixed bad filename in handlers/base_child.phph (namespaces build)
+
+
+2.0.0 - 2009/10/21
+
+- Now using a preprocessor to build with or without namespaces support
+- Core and handlers now throw exceptions on fatal errors
+- Added block_reads to Socket class to enable flow control
+- Socket::Set_Blocking() now returns a bool (true = success)
+- Added Socket::Set_Write_Buffer() method
+- Renamed Connection_Handler::FAIL_NORESPONSE to FAIL_CONNREFUSED
+- Added Connection_Handler::FAIL_CRYPTO constant
+- Added events Connection_Handler::on_Fork_Prepare() and on_Fork_Done()
+- Added Core::Clear_Timers(), Set_Max_Children() and Flush_Write_Buffers()
+- Added user streams param to Core::Run() method
+- Added DHCP Server handler (handlers/DHCP/Server.php)
+- Fixed many small bugs in HTTP and XML_RPC servers
+
+
+1.1.0 - 2007/10/26
+
+- Added non blocking crypto handshake for tls and ssl connections
+- Fixed two critical bugs with the write buffers
+- Fixed a bug when a connection had both pending connect and read data
+- Fixed warning when calling Run() with no listener or active connection
+- Fixed maximum content length enforcement in NS_HTTP_Service_Handler
+
+
+1.0.2 - 2006/08/22
+
+- Added NS_SOAP_Service_Handler for SOAP over HTTP (see dumb_soap_server.php)
+- Greatly improved write buffers performance with large data loads
+- Dropped connections now update the socket connected status
+
+
+1.0.1 - 2005/10/24
+
+- Added HTTP request length checking in NS_HTTP_Service_Handler
+- Fixed XMLRPC response envelope in NS_XML_RPC_Service_Handler (stoty)
+
+
+1.0.0 - 2005/08/25
+
+- Renamed NS_Server class to Nanoserv
+
+
+0.9.65 - 2005/05/11
+
+- Added NS_Timer class and NS_Server::New_Timer() static method
+- Fixed parse error in NS_HTTP_Service_Handler
+
+
+0.9.64 - 2005/05/08
+
+- Fixed queries with trailing cr/lf in NS_HTTP_Service_Handler (2ni)
+- Fixed pipelined queries handling in NS_HTTP_Service_Handler
+- Fixed NS_HTTP_Service_Handler::Send_Response() to account for added headers
+- Added examples/time_server.php
+- Fixed many documentation glitches
+
+
+0.9.63 - 2005/02/15
+
+- Added NS_Server::Fork() static method and example "fork_with_shared.php"
+- Changed "<?" short opening tags to standard "<?php"
+- NS_Server::[New|Free]_Listener() now wraps [New|Free]_Datagram_Handler
+- Added mkhugenanoserv.sh shell script to compile core+handlers in one file
+- Added subpackage and version info to documentation
+
+
+0.9.61 - 2005/02/14
+
+- Added UDP support (lots of changes, see NS_Server::New_Datagram_Handler())
+- Added handlers/NS_Syslog_Handler.php
+- Moved line input connection handler class out of core lib
+
+
+0.9.58 - 2005/02/13
+
+- First public beta

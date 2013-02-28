@@ -1,0 +1,7 @@
+#include handlers.phph
+
+#ifdef HAVE_NAMESPACE
+#define CLASS_LINE_INPUT_CONNECTION Line_Input_Connection
+#else
+#define CLASS_LINE_INPUT_CONNECTION NS_Line_Input_Connection_Handler
+#endif

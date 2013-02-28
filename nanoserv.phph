@@ -1,0 +1,49 @@
+#define NS_VERSION 2.1.1
+
+#ifdef HAVE_STATIC
+#define CLASS_STATIC static
+#else
+#define CLASS_STATIC self
+#endif
+
+#ifdef HAVE_NAMESPACE
+#define INTERFACE_WRITE_BUFFER I_Write_Buffer
+#define CLASS_SYS_EXCEPTION \Exception
+#define CLASS_EXCEPTION Exception
+#define CLASS_SERVER_EXCEPTION Server_Exception
+#define CLASS_CLIENT_EXCEPTION Client_Exception
+#define CLASS_SOCKET Socket
+#define CLASS_SERVER_SOCKET Server_Socket
+#define CLASS_CLIENT_SOCKET Client_Socket
+#define CLASS_IPC_SOCKET IPC_Socket
+#define CLASS_TIMER Timer
+#define CLASS_WRITE_BUFFER Write_Buffer
+#define CLASS_STATIC_WRITE_BUFFER Static_Write_Buffer
+#define CLASS_STREAM_WRITE_BUFFER Stream_Write_Buffer
+#define CLASS_HANDLER Handler
+#define CLASS_DATAGRAM_HANDLER Datagram_Handler
+#define CLASS_CONNECTION_HANDLER Connection_Handler
+#define CLASS_LISTENER Listener
+#define CLASS_SHARED_OBJECT Shared_Object
+#define CLASS_CORE Core
+#else
+#define INTERFACE_WRITE_BUFFER NS_I_Write_Buffer
+#define CLASS_SYS_EXCEPTION Exception
+#define CLASS_EXCEPTION NS_Exception
+#define CLASS_SERVER_EXCEPTION NS_Server_Exception
+#define CLASS_CLIENT_EXCEPTION NS_Client_Exception
+#define CLASS_SOCKET NS_Socket
+#define CLASS_SERVER_SOCKET NS_Server_Socket
+#define CLASS_CLIENT_SOCKET NS_Client_Socket
+#define CLASS_IPC_SOCKET NS_IPC_Socket
+#define CLASS_TIMER NS_Timer
+#define CLASS_WRITE_BUFFER NS_Write_Buffer
+#define CLASS_STATIC_WRITE_BUFFER NS_Static_Write_Buffer
+#define CLASS_STREAM_WRITE_BUFFER NS_Stream_Write_Buffer
+#define CLASS_HANDLER NS_Handler
+#define CLASS_DATAGRAM_HANDLER NS_Datagram_Handler
+#define CLASS_CONNECTION_HANDLER NS_Connection_Handler
+#define CLASS_LISTENER NS_Listener
+#define CLASS_SHARED_OBJECT NS_Shared_Object
+#define CLASS_CORE Nanoserv
+#endif

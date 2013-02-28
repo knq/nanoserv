@@ -1,0 +1,9 @@
+#include Syslog.phph
+
+#ifdef HAVE_NAMESPACE
+#define FILENAME_SYSLOG nanoserv/handlers/Syslog/Server.php
+#define CLASS_SYSLOG_SERVER \Nanoserv\Syslog\Server
+#else
+#define FILENAME_SYSLOG nanoserv-compat/handlers/NS_Syslog_Handler.php
+#define CLASS_SYSLOG_SERVER NS_Syslog_Handler
+#endif

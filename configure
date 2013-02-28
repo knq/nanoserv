@@ -1,0 +1,138 @@
+#!/bin/bash
+FORCE_PHP_BIN=
+FORCE_INSTALL_DIR=
+FORCE_HAVE_STATIC=
+FORCE_HAVE_NAMESPACE=
+FORCE_HAVE_CLOSURE=
+
+echo_help() {
+cat <<EOF
+usage: $0 [options]
+
+Supported options :
+	-h		show help
+	-p <filename>	force php binary
+	-i <dirname>	set install directory
+	-s <y|n>	force use of the static:: keyword
+	-n <y|n>	force use of namespaces
+	-c <y|n>	force use of closures
+
+EOF
+}
+
+while getopts "hp:i:s:n:c:" OPTION; do
+	case $OPTION in
+	h)	echo_help
+		exit 1
+	;;
+	p)	FORCE_PHP_BIN=$OPTARG
+	;;
+	i)	FORCE_INSTALL_DIR=$OPTARG
+	;;
+	s)	FORCE_HAVE_STATIC=$OPTARG
+	;;
+	n)	FORCE_HAVE_NAMESPACE=$OPTARG
+	;;
+	c)	FORCE_HAVE_CLOSURE=$OPTARG
+	;;
+	?)	echo_help
+		exit 1
+	;;
+	esac
+done
+
+echo -n "Looking for PHP binary ... "
+if [ "$FORCE_PHP_BIN" == "" ]; then
+	PHP_BIN=`which php`
+else
+	PHP_BIN=`which $FORCE_PHP_BIN`
+fi
+if [ "$PHP_BIN" == "" ]; then
+	echo "not found"
+	exit -1
+fi
+echo $PHP_BIN
+
+echo -n "Looking for phpDocumentor ... "
+if [ "$FORCE_PHPDOC_BIN" == "" ]; then
+	PHPDOC_BIN=`which phpdoc`
+else
+	PHPDOC_BIN=`which $FORCE_PHPDOC_BIN`
+fi
+if [ "$PHPDOC_BIN" == "" ]; then
+	echo "not found"
+else
+	echo $PHPDOC_BIN
+fi
+
+echo -n "Checking for PHP version ... "
+PHP_VERSION=`echo '<?php echo phpversion(); ?>' |$PHP_BIN`
+PHP_VERSION_OK=`echo '<?php echo version_compare(phpversion(), "5.1"); ?>' |$PHP_BIN`
+if [ "$PHP_VERSION_OK" == "-1" ]; then
+	echo "failed ($PHP_VERSION found, 5.1 or more needed)"
+	exit -1
+fi
+echo "$PHP_VERSION"
+
+echo -n "Checking for install directory ... "
+if [ "$FORCE_INSTALL_DIR" == "" ]; then
+	PHP_INC_DIR=`echo '<?php $paths = explode(":", ini_get("include_path")); foreach ($paths as $path) if ($path !== ".") { echo $path; break; } ?>' |$PHP_BIN`
+else
+	PHP_INC_DIR=$FORCE_INSTALL_DIR
+fi
+if [ "$PHP_INC_DIR" == "" ]; then
+	echo "not found"
+	exit -1
+fi
+if [ ! -d $PHP_INC_DIR ]; then
+	echo "$PHP_INC_DIR not a directory"
+	exit -1
+fi
+echo $PHP_INC_DIR
+
+echo -n "Checking for static:: support ... "
+if [ "$FORCE_HAVE_STATIC" == "" ]; then
+	HAVE_STATIC=`echo '<?php class Foo { const TEST="PASS"; static function Test() { echo static::TEST; } } ?>' |$PHP_BIN >/dev/null && echo y`
+else
+	HAVE_STATIC=$FORCE_HAVE_STATIC
+fi
+if [ "$HAVE_STATIC" == "y" ]; then
+	echo "yes"
+else
+	echo "no"
+fi
+
+echo -n "Checking for namespaces support ... "
+if [ "$FORCE_HAVE_NAMESPACE" == "" ]; then
+	HAVE_NAMESPACE=`echo '<?php namespace Foo; ?>' |$PHP_BIN >/dev/null && echo y`
+else
+	HAVE_NAMESPACE=$FORCE_HAVE_NAMESPACE
+fi
+if [ "$HAVE_NAMESPACE" == "y" ]; then
+	echo "yes"
+else
+	echo "no"
+fi
+
+echo -n "Checking for closures support ... "
+if [ "$FORCE_HAVE_CLOSURE" == "" ]; then
+        HAVE_CLOSURE=`echo '<?php $tmp = function() {}; ?>' |$PHP_BIN >/dev/null && echo y`
+else
+        HAVE_CLOSURE=$FORCE_HAVE_CLOSURE
+fi
+if [ "$HAVE_CLOSURE" == "y" ]; then
+        echo "yes"
+else
+        echo "no"
+fi
+
+echo -n "Generating makeopts ... "
+echo "PHP_BIN=$PHP_BIN" >makeopts
+if [ "$PHPDOC_BIN" != "" ]; then
+	echo "PHPDOC_BIN=$PHPDOC_BIN" >>makeopts
+fi
+echo "INSTALL_DIR=$PHP_INC_DIR" >>makeopts
+echo "HAVE_STATIC=$HAVE_STATIC" >>makeopts
+echo "HAVE_NAMESPACE=$HAVE_NAMESPACE" >>makeopts
+echo "HAVE_CLOSURE=$HAVE_CLOSURE" >>makeopts
+echo "done"

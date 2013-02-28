@@ -1,0 +1,28 @@
+#!{{{PHP_BIN}}}
+<?php
+
+#include ../handlers/HTTP/HTTP_child.phph
+
+require "{{{FILENAME_HTTP}}}";
+
+class dumb_httpd extends {{{CLASS_HTTP_SERVER}}} {
+
+	public function on_Request($url) {
+
+		echo date("Ymd:His")." got hit by ".$this->socket->Get_Peer_Name()." : '{$url}'\n";
+
+		return "You asked for url : <b>$url</b>";
+
+	}
+
+}
+
+$l = {{{CLASS_CORE}}}::New_Listener("ssl://0.0.0.0:443", "dumb_httpd");
+
+$l->Set_Option("ssl", "local_cert", "/etc/ssl/certs/nanoweb.pem");
+$l->Set_Forking();
+$l->Activate();
+
+{{{CLASS_CORE}}}::Run();
+
+?>

@@ -1,0 +1,31 @@
+#!{{{PHP_BIN}}}
+<?php
+
+#include ../handlers/HTTP/XML_RPC/XML_RPC_grandchild.phph
+
+require "{{{FILENAME_XML_RPC_PERSISTENT}}}";
+
+class dumb_xmlrpc {
+
+	public $bar;
+
+	public function getFoo($bar) {
+
+		return array("foo" => "foo{$bar}", "bar" => $this->bar++);
+
+	}
+
+}
+
+$o = new dumb_xmlrpc();
+
+$l = {{{CLASS_CORE}}}::New_Listener("tcp://0.0.0.0:800", '{{{CLASS_XML_RPC_PERSISTENT_SERVER}}}', {{{CLASS_CORE}}}::New_Shared_Object($o));
+
+$l->Set_Forking();
+$l->Activate();
+
+$o->bar = 100;
+
+{{{CLASS_CORE}}}::Run();
+
+?>

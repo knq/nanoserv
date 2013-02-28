@@ -1,0 +1,9 @@
+#include handlers.phph
+
+#ifdef HAVE_NAMESPACE
+#define FILENAME_LINE_INPUT nanoserv/handlers/Line_Input_Connection.php
+#define CLASS_LINE_INPUT_CONNECTION \Nanoserv\Line_Input_Connection
+#else
+#define FILENAME_LINE_INPUT nanoserv-compat/handlers/NS_Line_Input_Connection_Handler.php
+#define CLASS_LINE_INPUT_CONNECTION NS_Line_Input_Connection_Handler
+#endif

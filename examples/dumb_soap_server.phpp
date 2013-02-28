@@ -1,0 +1,21 @@
+#!{{{PHP_BIN}}}
+<?php
+
+#include ../handlers/HTTP/SOAP/SOAP_grandchild.phph
+
+require "{{{FILENAME_SOAP_DIRECT}}}";
+
+class dumb_soap_httpd extends {{{CLASS_SOAP_DIRECT_SERVER}}} {
+
+	public function buy($bar, $baz) {
+
+		return array("foo" => $bar + $baz);
+
+	}
+
+}
+
+{{{CLASS_CORE}}}::New_Listener("tcp://0.0.0.0:800", "dumb_soap_httpd")->Activate();
+{{{CLASS_CORE}}}::Run();
+
+?>

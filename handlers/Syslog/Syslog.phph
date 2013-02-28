@@ -1,0 +1,7 @@
+#include ../handlers.phph
+
+#ifdef HAVE_NAMESPACE
+#define CLASS_SYSLOG_SERVER Server
+#else
+#define CLASS_SYSLOG_SERVER NS_Syslog_Handler
+#endif

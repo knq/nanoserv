@@ -1,0 +1,7 @@
+#include ../handlers.phph
+
+#ifdef HAVE_NAMESPACE
+#define CLASS_TELNET_CONNECTION Connection
+#else
+#define CLASS_TELNET_CONNECTION NS_Telnet_Handler
+#endif

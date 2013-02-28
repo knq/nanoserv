@@ -1,0 +1,25 @@
+#!{{{PHP_BIN}}}
+<?php
+
+#include ../handlers/SMTP/SMTP_child.phph
+
+require "{{{FILENAME_SMTP}}}";
+
+class dumb_smtpd extends {{{CLASS_SMTP_SERVER}}} {
+
+	function on_Mail($from, $to, $data) {
+
+		echo "mail from: $from\n";
+		echo "mail to  : ".implode(", ", $to)."\n";
+		echo "\n".$data."[EOM]\n";
+
+		return false;
+
+	}
+
+}
+
+{{{CLASS_CORE}}}::New_Listener("tcp://0.0.0.0:250", "dumb_smtpd")->Activate();
+{{{CLASS_CORE}}}::Run();
+
+?>

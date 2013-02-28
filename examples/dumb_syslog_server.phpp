@@ -1,0 +1,26 @@
+#!{{{PHP_BIN}}}
+<?php
+
+#include ../handlers/Syslog/Syslog_child.phph
+
+require "{{{FILENAME_SYSLOG}}}";
+
+class dumb_syslogger extends {{{CLASS_SYSLOG_SERVER}}} {
+
+	public function on_Event($host, $facility, $severity, $message) {
+
+		echo "--- Syslog event --------------------------------------------------------------\n";
+		echo "Datetime : ".date("Y-m-d H:i:s")."\n";
+		echo "Host     : {$host}\n";
+		echo "Facility : ".self::Code_To_Facility($facility)."\n";
+		echo "Severity : {$severity}\n";
+		echo "Message  : ".trim($message)."\n";
+
+	}
+
+}
+
+{{{CLASS_CORE}}}::New_Listener("udp://0.0.0.0:514", "dumb_syslogger")->Activate();
+{{{CLASS_CORE}}}::Run();
+
+?>

@@ -1,0 +1,13 @@
+#include JSON_RPC_child.phph
+
+#ifdef HAVE_NAMESPACE
+#define FILENAME_JSON_RPC_DIRECT nanoserv/handlers/HTTP/JSON_RPC/Direct_Server.php
+#define FILENAME_JSON_RPC_PERSISTENT nanoserv/handlers/HTTP/JSON_RPC/Persistent_Server.php
+#define CLASS_JSON_RPC_DIRECT_SERVER \Nanoserv\HTTP\JSON_RPC\Direct_Server
+#define CLASS_JSON_RPC_PERSISTENT_SERVER \Nanoserv\HTTP\JSON_RPC\Persistent_Server
+#else
+#define FILENAME_JSON_RPC_DIRECT nanoserv-compat/NS_Direct_JSON_RPC_Service_Handler.php
+#define FILENAME_JSON_RPC_PERSISTENT nanoserv-compat/NS_Persistent_JSON_RPC_Service_Handler.php
+#define CLASS_JSON_RPC_DIRECT_SERVER NS_Direct_JSON_RPC_Service_Handler
+#define CLASS_JSON_RPC_PERSISTENT_SERVER NS_Persistent_JSON_RPC_Service_Handler
+#endif
