@@ -3,22 +3,22 @@
 /**
  *
  * nanoserv handlers - HTTP service handler
- * 
+ *
  * Copyright (C) 2004-2010 Vincent Negrier aka. sIX <six@aegis-corp.org>
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation; either
  * version 2.1 of the License, or (at your option) any later version.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA * 
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA *
  *
  * @package nanoserv
  * @subpackage Handlers
@@ -26,10 +26,7 @@
 
 namespace Nanoserv\HTTP;
 
-/**
- * Require the nanoserv core
- */
-require_once "nanoserv/nanoserv.php";
+use Nanoserv;
 
 /**
  * HTTP Service handler class
@@ -37,7 +34,7 @@ require_once "nanoserv/nanoserv.php";
  * @package nanoserv
  * @subpackage Handlers
  */
-abstract class Server extends \Nanoserv\Connection_Handler {
+abstract class Server extends Nanoserv\ConnectionHandler {
 
 	/**
 	 * Server string
@@ -48,12 +45,12 @@ abstract class Server extends \Nanoserv\Connection_Handler {
 	 * Max request length
 	 */
 	const MAX_REQUEST_LENGTH = 1048576;
-	
+
 	/**
 	 * Default content type
 	 */
 	const DEFAULT_CONTENT_TYPE = "text/html";
-	
+
 	/**#@+
 	 * Compression options
 	 * @var int
@@ -61,7 +58,7 @@ abstract class Server extends \Nanoserv\Connection_Handler {
 	const COMPRESS_AUTO = 1;
 	const COMPRESS_OFF = 2;
 	/**#@-*/
-	
+
 	/**
 	 * Response status codes and strings
 	 */
@@ -93,31 +90,31 @@ abstract class Server extends \Nanoserv\Connection_Handler {
 			501 => "Method Not Implemented",
 			503 => "Service Unavailable",
 			506 => "Variant Also Negotiates");
-	
+
 	/**
 	 * Request headers
 	 * @var array
 	 */
 	protected $request_headers = array();
-	
+
 	/**
 	 * Request method
 	 * @var string
 	 */
 	protected $request_method = "";
-	
+
 	/**
 	 * Request protocol
 	 * @var string
 	 */
 	protected $request_protocol = "";
-	
+
 	/**
 	 * Request content (raw POST data)
 	 * @var string
 	 */
 	protected $request_content = "";
-	
+
 	/**
 	 * Compress option
 	 * @var int
@@ -129,68 +126,68 @@ abstract class Server extends \Nanoserv\Connection_Handler {
 	 * @var int
 	 */
 	protected $compress_level = 3;
-	
+
 	/**
 	 * Request buffer
 	 * @var string
 	 */
 	private $request_buffer = "";
-	
+
 	/**
 	 * Response headers
 	 * @var array
 	 */
 	private $response_headers = array();
-	
+
 	/**
 	 * Response content type
 	 * @var string
 	 */
 	private $response_content_type;
-	
+
 	/**
 	 * Response status code
 	 * @var int
 	 */
 	private $response_status = 200;
-	
+
 	public function __construct() {
 
 		$this->response_content_type = static::DEFAULT_CONTENT_TYPE;
 
 	}
-	
+
 	protected function Handle_Request($url) {
 
 		$this->Send_Response($this->on_Request($url));
-	
+
 	}
-	
+
 	final public function on_Read($data) {
 
 		$this->request_buffer .= $data;
 
 		while ($this->request_buffer) {
-		
+
 			if (($p = strpos($this->request_buffer, "\r\n\r\n")) !== false) {
 
 				$hdrs = substr($this->request_buffer, 0, $p);
 				$cnt = substr($this->request_buffer, $p + 4);
-			
+
 			} else if (($p = strpos($this->request_buffer, "\n\n")) !== false) {
 
 				$hdrs = substr($this->request_buffer, 0, $p);
 				$cnt = substr($this->request_buffer, $p + 2);
-			
+
 			} else {
 
 				if (isset($this->request_buffer[static::MAX_REQUEST_LENGTH])) {
 
 					$this->Set_Response_Status(414);
 					$this->Send_Response("Request too large");
-				
+
 				} else {
-				
+
 					return;
 
 				}
@@ -202,15 +199,15 @@ abstract class Server extends \Nanoserv\Connection_Handler {
 			list($this->request_method, $url, $this->request_protocol) = explode(" ", strtok($hdrs, "\r\n"));
 
 			// And process headers
-			
+
 			$hdrs = explode("\n", trim(strtok("")));
 			$tmp = array();
 
 			foreach ($hdrs as $hdr) {
-				
+
 				$k = strtoupper(strtok($hdr, ":"));
 				$tmp[$k] = trim(strtok(""));
-			
+
 			}
 
 			$this->request_headers = $tmp;
@@ -221,9 +218,9 @@ abstract class Server extends \Nanoserv\Connection_Handler {
 
 					$this->Set_Response_Status(413);
 					$this->Send_Response("Request too large");
-				
+
 				} else if (strlen($cnt) < $cl) {
-				
+
 					return;
 
 				}
@@ -232,7 +229,7 @@ abstract class Server extends \Nanoserv\Connection_Handler {
 				$this->request_buffer = ltrim(substr($cnt, $cl));
 
 			} else {
-			
+
 				$this->request_content = "";
 				$this->request_buffer = $cnt;
 
@@ -242,7 +239,7 @@ abstract class Server extends \Nanoserv\Connection_Handler {
 
 				$this->Set_Response_Status(400);
 				$this->Send_Response("Bad Request");
-			
+
 			} else {
 
 				$this->Handle_Request($url);
@@ -250,7 +247,7 @@ abstract class Server extends \Nanoserv\Connection_Handler {
 			}
 
 		}
-	
+
 	}
 
 	/**
@@ -271,9 +268,9 @@ abstract class Server extends \Nanoserv\Connection_Handler {
 	public function Add_Header($header) {
 
 		$this->response_headers[] = $header;
-	
+
 	}
-	
+
 	/**
 	 * Set response content type
 	 *
@@ -284,7 +281,7 @@ abstract class Server extends \Nanoserv\Connection_Handler {
 		$this->response_content_type = $content_type;
 
 	}
-	
+
 	/**
 	 * Set HTTP response status code
 	 *
@@ -295,9 +292,9 @@ abstract class Server extends \Nanoserv\Connection_Handler {
 	public function Set_Response_Status($code = 200) {
 
 		$this->response_status = $code;
-	
+
 	}
-	
+
 	/**
 	 * Set compression option
 	 *
@@ -309,12 +306,12 @@ abstract class Server extends \Nanoserv\Connection_Handler {
 
 			case self::COMPRESS_AUTO:	$this->compress = extension_loaded("zlib") ? self::COMPRESS_AUTO : self::COMPRESS_OFF;		break;
 			case self::COMPRESS_OFF:	$this->compress = $opt;																		break;
-			default:					throw new \Nanoserv\Exception("invalid compress option '{$opt}'");
+			default:					throw new Nanoserv\Exception("invalid compress option '{$opt}'");
 
 		}
-	
+
 	}
-	
+
 	/**
 	 * Compress a response if possible and needed
 	 *
@@ -327,7 +324,7 @@ abstract class Server extends \Nanoserv\Connection_Handler {
 		$methods = array(	"deflate"	=> "gzdeflate",
 							"gzip"		=> "gzencode",
 							"compress"	=> "gzcompress");
-		
+
 		foreach ($methods as $m => $func) {
 
 			if (strpos($this->request_headers["ACCEPT-ENCODING"], $m) !== false) {
@@ -338,16 +335,16 @@ abstract class Server extends \Nanoserv\Connection_Handler {
 			}
 
 		}
-	
+
 		if (!isset($method)) return false;
 
 		$data = $func($data, $this->compress_level);
 		$encoding = $method;
 
 		return true;
-	
+
 	}
-	
+
 	/**
 	 * Send HTTP response back to client
 	 *
@@ -358,7 +355,7 @@ abstract class Server extends \Nanoserv\Connection_Handler {
 	protected function Send_Response($data, $length = null) {
 
 		$keep = isset($this->request_headers["CONNECTION"]) ? (strtoupper($this->request_headers["CONNECTION"]) === "KEEP-ALIVE") : false;
-		
+
 		$resp = "HTTP/1.1 " . (int)$this->response_status . " " . $this->STATUS_CODES[$this->response_status] . "\r\n"
 			  . "Date: " . gmdate("D, d M Y H:i:s T") . "\r\n"
 		      . "Server: " . (static::SERVER_STRING ? static::SERVER_STRING : "nanoserv/2.3.0") . "\r\n"
@@ -370,7 +367,7 @@ abstract class Server extends \Nanoserv\Connection_Handler {
 		if ($this->response_headers) $resp .= implode("\r\n", $this->response_headers) . "\r\n";
 
 		$resp .= "\r\n" . $data;
-		
+
 		$this->Write($resp, ($keep ? false : array($this, "Disconnect")));
 
 		$this->response_content_type = static::DEFAULT_CONTENT_TYPE;
@@ -392,7 +389,7 @@ abstract class Async_Server extends Server {
 	protected function Handle_Request($url) {
 
 		$this->on_Request($url);
-	
+
 	}
 
 }

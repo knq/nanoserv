@@ -3,19 +3,19 @@
 /**
  *
  * nanoserv handlers - DHCP protocol handler
- * 
+ *
  * Copyright (C) 2004-2010 Vincent Negrier aka. sIX <six@aegis-corp.org>
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation; either
  * version 2.1 of the License, or (at your option) any later version.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
@@ -95,7 +95,7 @@ class Options {
 
 				$code = $tmp["code"];
 				$len = $tmp["len"];
-				
+
 				if ($code === 0) {
 
 					$cur++;
@@ -108,13 +108,13 @@ class Options {
 				}
 
 				$opt = substr($data, $cur + 2, $len);
-				
+
 				switch ($code) {
 
 					case 12:
 					$this->hostname = $opt;
 					break;
-					
+
 					case 50:
 					list(,$tmp) = unpack("N", $opt);
 					$this->address_request = long2ip($tmp);
@@ -132,7 +132,7 @@ class Options {
 					case 55:
 					$this->parameter_request_list = unpack("C*", $opt);
 					break;
-					
+
 					case 60:
 					$this->vendor_class_id = $opt;
 					break;
@@ -140,7 +140,7 @@ class Options {
 					case 61:
 					$this->client_identifier = bin2hex($opt);
 					break;
-					
+
 					case 81:
 					$this->client_fqdn = $opt;
 					break;
@@ -150,19 +150,19 @@ class Options {
 					break;
 
 				}
-			
+
 				$cur += $len + 2;
-			
+
 			}
-			
+
 		}
-	
+
 	}
 
 	static public function Decode($data) {
 
 		return new self($data);
-	
+
 	}
 
 	static public function Encode() {
@@ -183,7 +183,7 @@ class Message {
 	const BOOTP_REPLY = 2;
 
 	const HTYPE_ETHERNET = 1;
-	
+
 	const DHCP_DISCOVER = 1;
 	const DHCP_OFFER = 2;
 	const DHCP_REQUEST = 3;
@@ -192,7 +192,7 @@ class Message {
 	const DHCP_NAK = 6;
 	const DHCP_RELEASE = 7;
 	const DHCP_INFORM = 8;
-	
+
 	public $op;
 	public $htype;
 	public $hlen;
@@ -208,13 +208,13 @@ class Message {
 	public $sname;
 	public $file;
 	public $options;
-	
+
 	public function __construct($data = NULL) {
 
 		if (isset($data)) {
 
 			$tmp = unpack("Cop/Chtype/Chlen/Chops/Nxid/nsecs/nflags/Nciaddr/Nyiaddr/Nsiaddr/Ngiaddr", $data);
-			
+
 			$this->op = $tmp["op"];
 			$this->htype = $tmp["htype"];
 			$this->hlen = $tmp["hlen"];
@@ -237,7 +237,7 @@ class Message {
 			$this->options = new Options();
 
 		}
-	
+
 	}
 
 	public function Op_To_String() {
@@ -247,9 +247,9 @@ class Message {
 			case self::BOOTP_REQUEST:	return "BOOTPREQUEST";
 			case self::BOOTP_REPLY:		return "BOOTPREPLY";
 			default:					return "unknown";
-		
+
 		}
-	
+
 	}
 
 	public function Htype_To_String() {
@@ -258,9 +258,9 @@ class Message {
 
 			case self::HTYPE_ETHERNET:	return "Ethernet";
 			default:					return "unknown";
-		
+
 		}
-	
+
 	}
 
 	public function Msg_Type_To_String() {
@@ -276,11 +276,11 @@ class Message {
 			case self::DHCP_RELEASE:	return "DHCPRELEASE";
 			case self::DHCP_INFORM:		return "DHCPINFORM";
 			default:					return "unknown";
-		
+
 		}
-	
+
 	}
-	
+
 	static public function Decode($data) {
 
 		return new self($data);
@@ -299,7 +299,7 @@ class Message {
  * @package nanoserv
  * @subpackage Handlers
  */
-abstract class Server extends \Nanoserv\Datagram_Handler {
+abstract class Server extends \Nanoserv\DatagramHandler {
 
 	public function on_Read($from, $data) {
 
