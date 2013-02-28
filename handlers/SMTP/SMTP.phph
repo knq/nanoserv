@@ -1,7 +1,0 @@
-#include ../base_child.phph
-
-#ifdef HAVE_NAMESPACE
-#define CLASS_SMTP_SERVER Server
-#else
-#define CLASS_SMTP_SERVER NS_SMTP_Service_Handler
-#endif

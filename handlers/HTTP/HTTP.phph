@@ -1,9 +1,0 @@
-#include ../handlers.phph
-
-#ifdef HAVE_NAMESPACE
-#define CLASS_HTTP_SERVER Server
-#define CLASS_HTTP_ASYNC_SERVER Async_Server
-#else
-#define CLASS_HTTP_SERVER NS_HTTP_Service_Handler
-#define CLASS_HTTP_ASYNC_SERVER NS_HTTP_Async_Service_Handler
-#endif
