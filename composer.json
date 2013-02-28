@@ -1,0 +1,27 @@
+{
+    "name": "kenshaw/nanoserv",
+    "minimum-stability": "dev",
+    "description": "Sockets based server for PHP",
+    "keywords": ["nanoserv", "socket"],
+    "homepage": "https://github.com/kenshaw/nanoserv",
+    "type": "library",
+    "license": "LGPL-2.1",
+    "authors": [
+        {
+            "name": "Kenneth Shaw",
+            "email": "kenshaw@gmail.com"
+        },
+        {
+            "name": "si.kz",
+            "homepage": "http://nanoserv.si.kz/",
+            "email": "six@aegis-corp.org"
+        }
+    ],
+    "require": {
+        "php": ">=5.3.1"
+    },
+    "minimum-stability": "dev",
+    "autoload": {
+        "psr-0": { "Nanoserv": "src/" }
+    }
+}
