@@ -27,18 +27,13 @@
 namespace Nanoserv\HTTP\SOAP;
 
 /**
- * Require the SOAP server
- */
-require_once "nanoserv/handlers/HTTP/SOAP/Server.php";
-
-/**
  * Persistent SOAP over HTTP service handler class
  *
  * @package nanoserv
  * @subpackage Handlers
  * @since 1.0.2
  */
-class PersistentServer extends \Nanoserv\HTTP\SOAP\Server {
+class PersistentServer extends namespace\Server {
 
 	/**
 	 * Persistent object

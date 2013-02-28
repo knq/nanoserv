@@ -384,14 +384,10 @@ abstract class Server extends Nanoserv\ConnectionHandler {
  * @package nanoserv
  * @subpackage Handlers
  */
-abstract class Async_Server extends Server {
-
+abstract class AsyncServer extends namespace\Server {
 	protected function Handle_Request($url) {
 
 		$this->on_Request($url);
 
 	}
-
 }
-
-?>

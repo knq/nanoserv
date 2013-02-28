@@ -26,20 +26,7 @@
 
 namespace Nanoserv\DHCP;
 
-/**
- * Require the nanoserv core
- */
-require_once "nanoserv/nanoserv.php";
-
-/**
- * DHCP message decoding exception
- *
- * @package nanoserv
- * @subpackage Handlers
- */
-class Exception extends \Nanoserv\Exception {
-
-}
+use Nanoserv;
 
 /**
  * DCHP message options parser and builder class
@@ -84,7 +71,7 @@ class Options {
 
 			list(,$magic) = unpack("N", substr($data, 0, 4));
 
-			if ($magic !== self::MAGIC_COOKIE) throw new Exception("unable to decode options, wrong magic cookie 0x" . dechex($magic));
+			if ($magic !== self::MAGIC_COOKIE) throw new \Exception("unable to decode options, wrong magic cookie 0x" . dechex($magic));
 
 			$cur = 4;
 			$optlen = strlen($data);
@@ -299,7 +286,7 @@ class Message {
  * @package nanoserv
  * @subpackage Handlers
  */
-abstract class Server extends \Nanoserv\DatagramHandler {
+abstract class Server extends Nanoserv\DatagramHandler {
 
 	public function on_Read($from, $data) {
 

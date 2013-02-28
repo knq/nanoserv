@@ -27,11 +27,6 @@
 namespace Nanoserv\HTTP\XMLRPC;
 
 /**
- * Require the XML-RPC server
- */
-require_once "nanoserv/handlers/HTTP/XMLRPC/Server.php";
-
-/**
  * Direct XML-RPC server class
  *
  * If you extend this handler, your methods will be publicly callable by the name they have in PHP
@@ -39,7 +34,7 @@ require_once "nanoserv/handlers/HTTP/XMLRPC/Server.php";
  * @package nanoserv
  * @subpackage Handlers
  */
-abstract class Direct_Server extends \Nanoserv\HTTP\XMLRPC\Server {
+abstract class DirectServer extends namespace\Server {
 
 	final public function on_Call($method, $args) {
 
@@ -54,5 +49,3 @@ abstract class Direct_Server extends \Nanoserv\HTTP\XMLRPC\Server {
 	}
 
 }
-
-?>

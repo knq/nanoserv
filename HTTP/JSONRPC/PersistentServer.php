@@ -24,12 +24,9 @@
  * @subpackage Handlers
  */
 
-namespace Nanoserv\HTTP\JSON_RPC;
+namespace Nanoserv\HTTP\JSONRPC;
 
-/**
- * Require the JSON-RPC server
- */
-require_once "nanoserv/handlers/HTTP/JSON_RPC/Server.php";
+use Nanoserv;
 
 /**
  * Persistent JSON-RPC server class
@@ -37,7 +34,7 @@ require_once "nanoserv/handlers/HTTP/JSON_RPC/Server.php";
  * @package nanoserv
  * @subpackage Handlers
  */
-class PersistentServer extends \Nanoserv\HTTP\JSON_RPC\Server {
+class PersistentServer extends \Nanoserv\HTTP\JSONRPC\Server {
 
 	/**
 	 * Persistent object
