@@ -246,5 +246,3 @@ abstract class Server extends LineInputConnection {
 	}
 
 }
-
-?>

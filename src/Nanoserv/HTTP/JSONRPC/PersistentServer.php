@@ -60,5 +60,3 @@ class PersistentServer extends \Nanoserv\HTTP\JSONRPC\Server {
 	}
 
 }
-
-?>

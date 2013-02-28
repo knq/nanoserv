@@ -132,5 +132,3 @@ abstract class Server extends DatagramHandler {
 	abstract public function on_Event($host, $facility, $severity, $message);
 
 }
-
-?>

@@ -101,5 +101,3 @@ abstract class Server extends Nanoserv\HTTP\Server {
 	abstract public function on_Call($method, $args);
 
 }
-
-?>

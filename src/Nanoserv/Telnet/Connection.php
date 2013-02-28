@@ -142,5 +142,3 @@ abstract class Connection extends ConnectionHandler {
 	abstract public function on_Telnet_Read($s);
 
 }
-
-?>

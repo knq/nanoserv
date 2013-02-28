@@ -303,5 +303,3 @@ abstract class Server extends Nanoserv\DatagramHandler {
 	abstract public function on_DHCP_Message($from, Message $msg);
 
 }
-
-?>

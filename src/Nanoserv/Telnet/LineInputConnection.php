@@ -91,5 +91,3 @@ abstract class LineInputConnection extends namespace\Connection {
 	abstract public function on_Telnet_Read_Line($s);
 
 }
-
-?>
