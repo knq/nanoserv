@@ -26,24 +26,24 @@
 
 namespace Nanoserv;
 
-use namespace\ClientException,
-    namespace\ClientSocket,
-    namespace\ConnectionHandler,
-    namespace\DatagramHandler,
-    namespace\Exception,
-    namespace\Handler,
-    namespace\IPCSocket,
-    namespace\IWriteButter,
-    namespace\LineInputConnection,
-    namespace\Listener,
-    namespace\ServerException,
-    namespace\ServerSocket,
-    namespace\SharedObject,
-    namespace\Socket,
-    namespace\StaticWriteBuffer,
-    namespace\StreamWriteBuffer,
-    namespace\Timer,
-    namespace\WriteBuffer;
+use Nanoserv\ClientException,
+    Nanoserv\ClientSocket,
+    Nanoserv\ConnectionHandler,
+    Nanoserv\DatagramHandler,
+    Nanoserv\Exception,
+    Nanoserv\Handler,
+    Nanoserv\IPCSocket,
+    Nanoserv\IWriteButter,
+    Nanoserv\LineInputConnection,
+    Nanoserv\Listener,
+    Nanoserv\ServerException,
+    Nanoserv\ServerSocket,
+    Nanoserv\SharedObject,
+    Nanoserv\Socket,
+    Nanoserv\StaticWriteBuffer,
+    Nanoserv\StreamWriteBuffer,
+    Nanoserv\Timer,
+    Nanoserv\WriteBuffer;
 
 /**
  * Server / multiplexer class
