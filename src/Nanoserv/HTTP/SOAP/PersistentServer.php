@@ -35,64 +35,63 @@ namespace Nanoserv\HTTP\SOAP;
  */
 class PersistentServer extends namespace\Server {
 
-	/**
-	 * Persistent object
-	 * @var object
-	 */
-	private $wrapped;
+    /**
+     * Persistent object
+     * @var object
+     */
+    private $wrapped;
 
-	/**
-	 * Persistent SOAP service handler constructor
-	 *
-	 * @param object $o
-	 * @param array $soap_options
-	 */
-	public function __construct($o, $soap_options=false) {
+    /**
+     * Persistent SOAP service handler constructor
+     *
+     * @param object $o
+     * @param array  $soap_options
+     */
+    public function __construct($o, $soap_options=false) {
 
-		$this->wrapped = $o;
+        $this->wrapped = $o;
 
-		if ($soap_options === false) {
+        if ($soap_options === false) {
 
-			parent::__construct($o);
+            parent::__construct($o);
 
-		} else {
+        } else {
 
-			parent::__construct($o, $soap_options);
+            parent::__construct($o, $soap_options);
 
-		}
+        }
 
-	}
+    }
 
-	public function Get_Exports() {
+    public function Get_Exports() {
 
-		$ret = array();
+        $ret = array();
 
-		$rc = new \ReflectionClass(get_class($this->wrapped));
+        $rc = new \ReflectionClass(get_class($this->wrapped));
 
-		foreach ($rc->getMethods() as $rm) {
+        foreach ($rc->getMethods() as $rm) {
 
-			if ((!$rm->isPublic()) || ($rm->getDeclaringClass() != $rc)) continue;
+            if ((!$rm->isPublic()) || ($rm->getDeclaringClass() != $rc)) continue;
 
-			$params = array();
+            $params = array();
 
-			foreach ($rm->getParameters() as $rp) {
+            foreach ($rm->getParameters() as $rp) {
 
-				$params[] = array("name" => $rp->getName());
+                $params[] = array("name" => $rp->getName());
 
-			}
+            }
 
-			$ret[$rm->getName()] = $params;
+            $ret[$rm->getName()] = $params;
 
-		}
+        }
 
-		return $ret;
+        return $ret;
 
-	}
+    }
 
-	final public function on_Call($method, $args) {
+    final public function on_Call($method, $args) {
+        return call_user_func_array(array($this->wrapped, $method), $args);
 
-		return call_user_func_array(array($this->wrapped, $method), $args);
-
-	}
+    }
 
 }

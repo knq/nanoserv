@@ -36,294 +36,289 @@ use Nanoserv;
  */
 abstract class Server extends Nanoserv\HTTP\Server {
 
-	/**
-	 * Request URL
-	 * @var string
-	 */
-	protected $request_url = "";
+    /**
+     * Request URL
+     * @var string
+     */
+    protected $request_url = "";
 
-	/**
-	 * Convert a PHP variable to XML string representation
-	 *
-	 * @param string $var
-	 * @return string
-	 */
-	static protected function Variable_To_XML_String($var) {
+    /**
+     * Convert a PHP variable to XML string representation
+     *
+     * @param  string $var
+     * @return string
+     */
+    protected static function Variable_To_XML_String($var) {
 
-		$ret = "<value>";
+        $ret = "<value>";
 
-		if (is_int($var)) {
+        if (is_int($var)) {
 
-			$ret .= "<i4>".$var."</i4>";
+            $ret .= "<i4>".$var."</i4>";
 
-		} else if (is_bool($var)) {
+        } elseif (is_bool($var)) {
 
-			$ret .= "<boolean>".(int)$var."</boolean>";
+            $ret .= "<boolean>".(int) $var."</boolean>";
 
-		} else if (is_string($var)) {
+        } elseif (is_string($var)) {
 
-			if (htmlentities($var) != $var) {
+            if (htmlentities($var) != $var) {
 
-				$ret .= "<base64>".base64_encode($var)."</base64>";
+                $ret .= "<base64>".base64_encode($var)."</base64>";
 
-			} else {
+            } else {
 
-				$ret .= "<string>".$var."</string>";
+                $ret .= "<string>".$var."</string>";
 
-			}
+            }
 
-		} else if (is_float($var)) {
+        } elseif (is_float($var)) {
 
-			$ret .= "<double>".$var."</double>";
+            $ret .= "<double>".$var."</double>";
 
-		} else if (is_array($var)) {
+        } elseif (is_array($var)) {
 
-			if (self::Is_Assoc($var)) {
+            if (self::Is_Assoc($var)) {
 
-				$ret .= "<struct>";
+                $ret .= "<struct>";
 
-				foreach ($var as $k=>$v) {
+                foreach ($var as $k=>$v) {
 
-					$ret .= "<member>";
-					$ret .= "<name>".$k."</name>";
-					$ret .= self::Variable_To_XML_String($v);
-					$ret .= "</member>";
+                    $ret .= "<member>";
+                    $ret .= "<name>".$k."</name>";
+                    $ret .= self::Variable_To_XML_String($v);
+                    $ret .= "</member>";
 
-				}
+                }
 
-				$ret .= "</struct>";
+                $ret .= "</struct>";
 
-			} else {
+            } else {
 
-				$ret .= "<array><data>";
+                $ret .= "<array><data>";
 
-				foreach ($var as $v) $ret .= self::Variable_To_XML_String($v);
+                foreach ($var as $v) $ret .= self::Variable_To_XML_String($v);
 
-				$ret .= "</data></array>";
+                $ret .= "</data></array>";
 
-			}
+            }
 
-		}
+        }
 
-		$ret .= "</value>";
+        $ret .= "</value>";
 
-		return $ret;
+        return $ret;
 
-	}
+    }
 
-	/**
-	 * Checks if given array is associative
-	 *
-	 * @param array $arr
-	 * @return bool
-	 */
-	static private function Is_Assoc($arr) {
+    /**
+     * Checks if given array is associative
+     *
+     * @param  array $arr
+     * @return bool
+     */
+    private static function Is_Assoc($arr) {
+        return is_array($arr) && array_keys($arr) !== range(0, sizeof($arr) - 1);
 
-		return is_array($arr) && array_keys($arr) !== range(0, sizeof($arr) - 1);
+    }
 
-	}
+    /**
+     * Convert a XMLRPC value stored in a \SimpleXMLElement object to php variable
+     *
+     * @param  \SimpleXMLElement $xml
+     * @return mixed
+     */
+    protected static function XML_Value_To_Variable(\SimpleXMLElement $xml) {
 
-	/**
-	 * Convert a XMLRPC value stored in a \SimpleXMLElement object to php variable
-	 *
-	 * @param \SimpleXMLElement $xml
-	 * @return mixed
-	 */
-	static protected function XML_Value_To_Variable(\SimpleXMLElement $xml) {
+        foreach ($xml as $type => $xvalue) break;
 
-		foreach ($xml as $type => $xvalue) break;
+        if (isset($type)) {
 
-		if (isset($type)) {
+            $value = (string) $xvalue;
 
-			$value = (string)$xvalue;
+        } else {
 
-		} else {
+            $type = "string";
+            $value = (string) $xml;
 
-			$type = "string";
-			$value = (string)$xml;
+        }
 
-		}
+        switch (strtoupper($type)) {
 
-		switch (strtoupper($type)) {
+            case "I4":
+            case "INT":
+            $value = (int) $value;
+            break;
 
-			case "I4":
-			case "INT":
-			$value = (int)$value;
-			break;
+            case "BOOLEAN":
+            $value = (bool) $value;
+            break;
 
-			case "BOOLEAN":
-			$value = (bool)$value;
-			break;
+            case "DOUBLE":
+            $value = (float) $value;
+            break;
 
-			case "DOUBLE":
-			$value = (float)$value;
-			break;
+            case "BASE64":
+            $value = base64_decode($value);
+            break;
 
-			case "BASE64":
-			$value = base64_decode($value);
-			break;
+            case "DATETIME.ISO8601":
+            $value = strtotime($value);
+            break;
 
-			case "DATETIME.ISO8601":
-			$value = strtotime($value);
-			break;
+            case "STRUCT":
+            case "ARRAY":
+            $value = self::XML_Struct_To_Array($xvalue);
+            break;
 
-			case "STRUCT":
-			case "ARRAY":
-			$value = self::XML_Struct_To_Array($xvalue);
-			break;
+            case "STRING":
+            default:
 
-			case "STRING":
-			default:
+        }
 
-		}
+        return $value;
 
-		return $value;
+    }
 
-	}
+    /**
+     * Convert a XMLRPC struct or array stored in a \SimpleXMLElement object to php array
+     *
+     * @param  \SimpleXMLElement $xml
+     * @return array
+     */
+    protected static function XML_Struct_To_Array(\SimpleXMLElement $xml) {
 
-	/**
-	 * Convert a XMLRPC struct or array stored in a \SimpleXMLElement object to php array
-	 *
-	 * @param \SimpleXMLElement $xml
-	 * @return array
-	 */
-	static protected function XML_Struct_To_Array(\SimpleXMLElement $xml) {
+        $ret = array();
 
-		$ret = array();
+        foreach ($xml as $xtype=>$xelem) {
 
-		foreach ($xml as $xtype=>$xelem) {
+            switch (strtoupper($xtype)) {
 
-			switch (strtoupper($xtype)) {
+                case "MEMBER":
 
-				case "MEMBER":
+                $mname = $mval = false;
 
-				$mname = $mval = false;
+                foreach ($xelem as $mprop=>$xval) {
 
-				foreach ($xelem as $mprop=>$xval) {
+                    switch (strtoupper($mprop)) {
 
-					switch (strtoupper($mprop)) {
+                        case "NAME":
+                        $mname = (string) $xval;
+                        break;
 
-						case "NAME":
-						$mname = (string)$xval;
-						break;
+                        case "VALUE":
+                        $mval = self::XML_Value_To_Variable($xval);
+                        break;
 
-						case "VALUE":
-						$mval = self::XML_Value_To_Variable($xval);
-						break;
+                    }
 
-					}
+                }
 
-				}
+                $ret[$mname] = $mval;
 
-				$ret[$mname] = $mval;
+                break;
 
-				break;
+                case "DATA":
+                foreach ($xelem as $xval) $ret[] = self::XML_Value_To_Variable($xval);
+                break;
 
-				case "DATA":
-				foreach ($xelem as $xval) $ret[] = self::XML_Value_To_Variable($xval);
-				break;
+            }
 
-			}
+        }
 
-		}
+        return $ret;
 
-		return $ret;
+    }
 
-	}
+    /**
+     * Convert XMLRPC method call params stored in a \SimpleXMLElement object to a php array
+     *
+     * @param  \SimpleXMLElement $xml
+     * @return array
+     */
+    protected static function XML_Params_To_Array(\SimpleXMLElement $xml) {
 
-	/**
-	 * Convert XMLRPC method call params stored in a \SimpleXMLElement object to a php array
-	 *
-	 * @param \SimpleXMLElement $xml
-	 * @return array
-	 */
-	static protected function XML_Params_To_Array(\SimpleXMLElement $xml) {
+        $ret = array();
 
-		$ret = array();
+        foreach ($xml as $topname=>$xparam) {
 
-		foreach ($xml as $topname=>$xparam) {
+            if (strtoupper($topname) != "PARAM") continue;
 
-			if (strtoupper($topname) != "PARAM") continue;
+            foreach ($xparam as $xvalue) $ret[] = self::XML_Value_To_Variable($xvalue);
 
-			foreach ($xparam as $xvalue) $ret[] = self::XML_Value_To_Variable($xvalue);
+        }
 
-		}
+        return $ret;
 
-		return $ret;
+    }
 
-	}
+    /**
+     * Add XMLRPC response envelope
+     *
+     * @param  string $xml_result
+     * @return string
+     */
+    protected static function XML_Add_MethodResponse_Envelope($xml_result) {
+        return "<methodResponse><params><param>{$xml_result}</param></params></methodResponse>";
 
-	/**
-	 * Add XMLRPC response envelope
-	 *
-	 * @param string $xml_result
-	 * @return string
-	 */
-	static protected function XML_Add_MethodResponse_Envelope($xml_result) {
+    }
 
-		return "<methodResponse><params><param>{$xml_result}</param></params></methodResponse>";
+    protected static function XML_Add_Fault_Envelope(\Exception $e) {
+        return "<methodResponse><fault><value><struct><member><name>faultCode</name><value><int>" . $e->getCode() . "</int></value></member><member><name>faultString</name><value><string>" . $e->getMessage() . "</string></value></member></struct></value></fault></methodResponse>";
 
-	}
+    }
 
-	static protected function XML_Add_Fault_Envelope(\Exception $e) {
+    final public function on_Request($url) {
 
-		return "<methodResponse><fault><value><struct><member><name>faultCode</name><value><int>" . $e->getCode() . "</int></value></member><member><name>faultString</name><value><string>" . $e->getMessage() . "</string></value></member></struct></value></fault></methodResponse>";
+        $this->request_url = $url;
 
-	}
+        $xreq = @simplexml_load_string($this->request_content);
 
-	final public function on_Request($url) {
+        if ($xreq === false) {
 
-		$this->request_url = $url;
+            $this->Set_Response_Status(400);
 
-		$xreq = @simplexml_load_string($this->request_content);
+            return "";
 
-		if ($xreq === false) {
+        }
 
-			$this->Set_Response_Status(400);
-			return "";
+        foreach ($xreq as $name => $xtopelem) {
 
-		}
+            switch (strtoupper($name)) {
 
-		foreach ($xreq as $name => $xtopelem) {
+                case "METHODNAME":
+                $method = (string) $xtopelem;
+                break;
 
-			switch (strtoupper($name)) {
+                case "PARAMS":
+                $params = $xtopelem;
+                break;
 
-				case "METHODNAME":
-				$method = (string)$xtopelem;
-				break;
+            }
 
-				case "PARAMS":
-				$params = $xtopelem;
-				break;
+        }
 
-			}
+        $this->Set_Content_Type("text/xml");
 
+        try {
+            return self::XML_Add_MethodResponse_Envelope(self::Variable_To_XML_String($this->on_Call($method, isset($params) ? self::XML_Params_To_Array($params) : NULL)));
 
-		}
+        } catch (\Exception $e) {
+            return self::XML_Add_Fault_Envelope($e);
 
-		$this->Set_Content_Type("text/xml");
+        }
 
-		try {
+    }
 
-			return self::XML_Add_MethodResponse_Envelope(self::Variable_To_XML_String($this->on_Call($method, isset($params) ? self::XML_Params_To_Array($params) : NULL)));
-
-		} catch (\Exception $e) {
-
-			return self::XML_Add_Fault_Envelope($e);
-
-		}
-
-	}
-
-	/**
-	 * Event called on XML-RPC method call
-	 *
-	 * The value returned by on_Call() will be sent back as the XMLRPC method call response
-	 *
-	 * @param string $method
-	 * @param array $args
-	 * @return mixed
-	 */
-	abstract public function on_Call($method, $args);
+    /**
+     * Event called on XML-RPC method call
+     *
+     * The value returned by on_Call() will be sent back as the XMLRPC method call response
+     *
+     * @param  string $method
+     * @param  array  $args
+     * @return mixed
+     */
+    abstract public function on_Call($method, $args);
 
 }

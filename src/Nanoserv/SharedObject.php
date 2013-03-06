@@ -11,83 +11,79 @@ namespace Nanoserv;
  */
 class SharedObject {
 
-	/**
-	 * caller process pid
-	 * @var int
-	 */
-	static public $caller_pid;
+    /**
+     * caller process pid
+     * @var int
+     */
+    public static $caller_pid;
 
-	/**
-	 * shared object unique identifier
-	 * @var int
-	 */
-	public $_oid;
+    /**
+     * shared object unique identifier
+     * @var int
+     */
+    public $_oid;
 
-	/**
-	 * wrapped object
-	 * @var object
-	 */
-	private $wrapped;
+    /**
+     * wrapped object
+     * @var object
+     */
+    private $wrapped;
 
-	/**
-	 * static instance counter
-	 * @var int
-	 */
-	static public $shared_count = 0;
+    /**
+     * static instance counter
+     * @var int
+     */
+    public static $shared_count = 0;
 
-	/**
-	 * SharedObject constructor
-	 *
-	 * If $o is omited, a new StdClass object will be created and wrapped
-	 *
-	 * @param object $o
-	 */
-	public function __construct($o=false) {
+    /**
+     * SharedObject constructor
+     *
+     * If $o is omited, a new StdClass object will be created and wrapped
+     *
+     * @param object $o
+     */
+    public function __construct($o=false) {
 
-		if ($o === false) $o = new StdClass();
+        if ($o === false) $o = new StdClass();
 
-		$this->_oid = ++self::$shared_count;
-		$this->wrapped = $o;
+        $this->_oid = ++self::$shared_count;
+        $this->wrapped = $o;
 
-	}
+    }
 
-	public function __get($k) {
+    public function __get($k) {
 
-		if (namespace\Core::$child_process) {
+        if (namespace\Core::$child_process) {
+            return namespace\Core::$master_pipe->Ask_Master(array("oid" => $this->_oid, "action" => "G", "var" => $k));
 
-			return namespace\Core::$master_pipe->Ask_Master(array("oid" => $this->_oid, "action" => "G", "var" => $k));
+        } else {
+            return $this->wrapped->$k;
 
-		} else {
+        }
 
-			return $this->wrapped->$k;
+    }
 
-		}
+    public function __set($k, $v) {
 
-	}
+        if (namespace\Core::$child_process) {
 
-	public function __set($k, $v) {
+            namespace\Core::$master_pipe->Ask_Master(array("oid" => $this->_oid, "action" => "S", "var" => $k, "val" => $v), false);
 
-		if (namespace\Core::$child_process) {
+        } else {
 
-			namespace\Core::$master_pipe->Ask_Master(array("oid" => $this->_oid, "action" => "S", "var" => $k, "val" => $v), false);
+            $this->wrapped->$k = $v;
 
-		} else {
+        }
 
-			$this->wrapped->$k = $v;
+    }
 
-		}
+    public function __call($m, $a) {
+        if (namespace\Core::$child_process) {
+            return namespace\Core::$master_pipe->Ask_Master(array("oid" => $this->_oid, "action" => "C", "func" => $m, "args" => $a));
 
-	}
+        } else {
+            return call_user_func_array(array($this->wrapped, $m), $a);
 
-	public function __call($m, $a) {
-		if (namespace\Core::$child_process) {
-
-			return namespace\Core::$master_pipe->Ask_Master(array("oid" => $this->_oid, "action" => "C", "func" => $m, "args" => $a));
-
-		} else {
-
-			return call_user_func_array(array($this->wrapped, $m), $a);
-
-		}
-	}
+        }
+    }
 }

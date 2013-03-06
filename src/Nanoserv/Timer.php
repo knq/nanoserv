@@ -13,60 +13,59 @@ namespace Nanoserv;
  */
 class Timer {
 
-	/**
-	 * System time for timer activation
-	 * @var float
-	 */
-	public $microtime;
+    /**
+     * System time for timer activation
+     * @var float
+     */
+    public $microtime;
 
-	/**
-	 * Timer callback
-	 * @var mixed
-	 */
-	public $callback;
+    /**
+     * Timer callback
+     * @var mixed
+     */
+    public $callback;
 
-	/**
-	 * Timer status
-	 * @var bool
-	 */
-	public $active = true;
+    /**
+     * Timer status
+     * @var bool
+     */
+    public $active = true;
 
-	/**
-	 * Timer constructor
-	 *
-	 * @param float $time
-	 * @param mixed $callback
-	 * @since 0.9
-	 * @see Core::New_Timer()
-	 */
-	public function __construct($time, $callback) {
+    /**
+     * Timer constructor
+     *
+     * @param float $time
+     * @param mixed $callback
+     * @since 0.9
+     * @see Core::New_Timer()
+     */
+    public function __construct($time, $callback) {
 
-		$this->microtime = $time;
-		$this->callback = $callback;
+        $this->microtime = $time;
+        $this->callback = $callback;
 
-	}
+    }
 
-	/**
-	 * Activate timer
-	 *
-	 * Timers are activated by default, and Activate should only be used after a call do Deactivate()
-	 *
-	 * @see Timer::Deactivate()
-	 */
-	public function Activate() {
+    /**
+     * Activate timer
+     *
+     * Timers are activated by default, and Activate should only be used after a call do Deactivate()
+     *
+     * @see Timer::Deactivate()
+     */
+    public function Activate() {
 
-		$this->active = true;
+        $this->active = true;
 
-	}
+    }
 
-	/**
-	 * Deactivate timer
-	 */
-	public function Deactivate() {
+    /**
+     * Deactivate timer
+     */
+    public function Deactivate() {
 
-		$this->active = false;
+        $this->active = false;
 
-	}
+    }
 
 }
-

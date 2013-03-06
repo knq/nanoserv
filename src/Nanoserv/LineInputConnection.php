@@ -34,49 +34,49 @@ namespace Nanoserv;
  */
 abstract class LineInputConnection extends namespace\ConnectionHandler {
 
-	/**
-	 * Maximum line length
-	 */
-	const MAX_LENGTH = 16384;
+    /**
+     * Maximum line length
+     */
+    const MAX_LENGTH = 16384;
 
-	/**
-	 * Line separator
-	 */
-	const EOL_SEPARATOR = "\n";
+    /**
+     * Line separator
+     */
+    const EOL_SEPARATOR = "\n";
 
-	/**
-	 * Line buffer
-	 * @var string
-	 */
-	private $line_buffer = "";
+    /**
+     * Line buffer
+     * @var string
+     */
+    private $line_buffer = "";
 
-	final public function on_Read($data) {
+    final public function on_Read($data) {
 
-		$this->line_buffer .= $data;
+        $this->line_buffer .= $data;
 
-		while (($p = strrpos($this->line_buffer, self::EOL_SEPARATOR)) !== false) {
+        while (($p = strrpos($this->line_buffer, self::EOL_SEPARATOR)) !== false) {
 
-			$lines = explode(self::EOL_SEPARATOR, substr($this->line_buffer, 0, $p));
-			$this->line_buffer = substr($this->line_buffer, $p + strlen(self::EOL_SEPARATOR));
+            $lines = explode(self::EOL_SEPARATOR, substr($this->line_buffer, 0, $p));
+            $this->line_buffer = substr($this->line_buffer, $p + strlen(self::EOL_SEPARATOR));
 
-			foreach ($lines as $line) $this->on_Read_Line(rtrim($line, "\r\n").self::EOL_SEPARATOR);
+            foreach ($lines as $line) $this->on_Read_Line(rtrim($line, "\r\n").self::EOL_SEPARATOR);
 
-		}
+        }
 
-		if (strlen($this->line_buffer) > self::MAX_LENGTH) {
+        if (strlen($this->line_buffer) > self::MAX_LENGTH) {
 
-			$this->on_Read_Line($this->line_buffer);
-			$this->line_buffer = "";
+            $this->on_Read_Line($this->line_buffer);
+            $this->line_buffer = "";
 
-		}
+        }
 
-	}
+    }
 
-	/**
-	 * Event called on new line of data
-	 *
-	 * @param string $data
-	 */
-	abstract public function on_Read_Line($data);
+    /**
+     * Event called on new line of data
+     *
+     * @param string $data
+     */
+    abstract public function on_Read_Line($data);
 
 }

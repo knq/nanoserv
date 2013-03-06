@@ -36,213 +36,210 @@ use Nanoserv\LineInputConnection;
  */
 abstract class Server extends LineInputConnection {
 
-	/**
-	 * Server string
-	 */
-	const SERVER_STRING = "";
+    /**
+     * Server string
+     */
+    const SERVER_STRING = "";
 
-	/**
-	 * Hostname
-	 * @var string
-	 */
-	public $hostname;
+    /**
+     * Hostname
+     * @var string
+     */
+    public $hostname;
 
-	/**
-	 * HELO message
-	 * @var string
-	 */
-	protected $helo_message = "";
+    /**
+     * HELO message
+     * @var string
+     */
+    protected $helo_message = "";
 
-	/**
-	 * Enveloppe sender
-	 * @var string
-	 */
-	protected $env_from = "";
+    /**
+     * Enveloppe sender
+     * @var string
+     */
+    protected $env_from = "";
 
-	/**
-	 * Enveloppe recipents
-	 * @var array
-	 */
-	protected $env_rcpt = array();
+    /**
+     * Enveloppe recipents
+     * @var array
+     */
+    protected $env_rcpt = array();
 
-	/**
-	 * Mail data buffer
-	 * @var string
-	 */
-	protected $data_buffer = "";
+    /**
+     * Mail data buffer
+     * @var string
+     */
+    protected $data_buffer = "";
 
-	/**
-	 * State indicator
-	 * @var bool
-	 */
-	private $indata = false;
+    /**
+     * State indicator
+     * @var bool
+     */
+    private $indata = false;
 
-	/**
-	 * SMTP Service Handler constructor
-	 */
-	public function __construct() {
+    /**
+     * SMTP Service Handler constructor
+     */
+    public function __construct() {
 
-		$this->hostname = php_uname("n");
+        $this->hostname = php_uname("n");
 
-	}
+    }
 
-	public function on_Accept() {
+    public function on_Accept() {
 
-		$this->Write("200 ".$this->hostname." SMTP ".(static::SERVER_STRING ? static::SERVER_STRING : "nanoserv/2.3.0")."\n");
+        $this->Write("200 ".$this->hostname." SMTP ".(static::SERVER_STRING ? static::SERVER_STRING : "nanoserv/2.3.0")."\n");
 
-	}
+    }
 
-	final public function on_Read_Line($data) {
+    final public function on_Read_Line($data) {
 
-		if (!$this->indata) {
+        if (!$this->indata) {
 
-			$updata = strtoupper($data);
+            $updata = strtoupper($data);
 
-			if (strpos($updata, "HELO") === 0) {
+            if (strpos($updata, "HELO") === 0) {
 
-				strtok($data, " ");
-				$this->helo_message = trim(strtok(""));
+                strtok($data, " ");
+                $this->helo_message = trim(strtok(""));
 
-				if (!$this->on_SMTP_HELO($this->helo_message)) {
+                if (!$this->on_SMTP_HELO($this->helo_message)) {
 
-					$this->Disconnect();
-					break;
+                    $this->Disconnect();
+                    break;
 
-				}
+                }
 
-				$this->Write("250 ".$this->hostname." Hello\n");
+                $this->Write("250 ".$this->hostname." Hello\n");
 
-			} else if (strpos($updata, "MAIL FROM") === 0) {
+            } elseif (strpos($updata, "MAIL FROM") === 0) {
 
-				strtok($data, ":");
-				$this->env_from = trim(strtok(""));
+                strtok($data, ":");
+                $this->env_from = trim(strtok(""));
 
-				if (!$this->on_SMTP_MAIL_FROM($this->env_from)) break;
+                if (!$this->on_SMTP_MAIL_FROM($this->env_from)) break;
 
-				$this->Write("250 ".$this->env_from."... Sender ok\n");
+                $this->Write("250 ".$this->env_from."... Sender ok\n");
 
-			} else if (strpos($updata, "RCPT TO") === 0) {
+            } elseif (strpos($updata, "RCPT TO") === 0) {
 
-				strtok($data, ":");
-				$this->env_rcpt[] = $rcpt = trim(strtok(""));
+                strtok($data, ":");
+                $this->env_rcpt[] = $rcpt = trim(strtok(""));
 
-				if (!$this->on_SMTP_RCPT_TO($rcpt)) break;
+                if (!$this->on_SMTP_RCPT_TO($rcpt)) break;
 
-				$this->Write("250 ".$rcpt."... Recipient ok\n");
+                $this->Write("250 ".$rcpt."... Recipient ok\n");
 
-			} else if (strpos($updata, "DATA") === 0) {
+            } elseif (strpos($updata, "DATA") === 0) {
 
-				$this->Write("354 Enter mail, end with '.' on a line by itself\n");
-				$this->indata = true;
+                $this->Write("354 Enter mail, end with '.' on a line by itself\n");
+                $this->indata = true;
 
-			} else if (strpos($updata, "QUIT") === 0) {
+            } elseif (strpos($updata, "QUIT") === 0) {
 
-				$this->Write("251 ".$this->hostname." closing connection\n", array($this, "Disconnect"));
+                $this->Write("251 ".$this->hostname." closing connection\n", array($this, "Disconnect"));
 
-			} else {
+            } else {
 
-				if (!$this->on_SMTP_Unhandled(trim($data))) break;
+                if (!$this->on_SMTP_Unhandled(trim($data))) break;
 
-			}
+            }
 
-		} else {
+        } else {
 
-			if (rtrim($data) !== ".") {
+            if (rtrim($data) !== ".") {
 
-				$this->data_buffer .= $data;
+                $this->data_buffer .= $data;
 
-			} else {
+            } else {
 
-				if ($this->on_Mail($this->env_from, $this->env_rcpt, $this->data_buffer)) {
+                if ($this->on_Mail($this->env_from, $this->env_rcpt, $this->data_buffer)) {
 
-					$this->Write("250 Message accepted\n");
+                    $this->Write("250 Message accepted\n");
 
-				} else {
+                } else {
 
-					$this->Write("554 Message rejected\n");
+                    $this->Write("554 Message rejected\n");
 
-				}
+                }
 
-				$this->indata = false;
-				$this->env_from = "";
-				$this->env_rcpt = array();
+                $this->indata = false;
+                $this->env_from = "";
+                $this->env_rcpt = array();
 
-			}
+            }
 
-		}
+        }
 
-	}
+    }
 
-	/**
-	 * Event called on SMTP HELO reception
-	 *
-	 * Extend this method to return the boolean status of the session (false = disconnect client)
-	 *
-	 * @param string $data remote HELO message
-	 * @return bool
-	 */
-	public function on_SMTP_HELO($data) {
+    /**
+     * Event called on SMTP HELO reception
+     *
+     * Extend this method to return the boolean status of the session (false = disconnect client)
+     *
+     * @param  string $data remote HELO message
+     * @return bool
+     */
+    public function on_SMTP_HELO($data) {
+        return true;
 
-		return true;
+    }
 
-	}
+    /**
+     * Event called on SMTP MAIL FROM reception
+     *
+     * Extend this method to return the boolean status of the session (false = disconnect client)
+     *
+     * @param  string $data remote MAIL FROM message
+     * @return bool
+     */
+    public function on_SMTP_MAIL_FROM($data) {
+        return true;
 
-	/**
-	 * Event called on SMTP MAIL FROM reception
-	 *
-	 * Extend this method to return the boolean status of the session (false = disconnect client)
-	 *
-	 * @param string $data remote MAIL FROM message
-	 * @return bool
-	 */
-	public function on_SMTP_MAIL_FROM($data) {
+    }
 
-		return true;
+    /**
+     * Event called on SMTP RCPT TO reception
+     *
+     * Extend this method to return the boolean status of the session (false = disconnect client)
+     *
+     * @param  string $data remote RCPT TO message
+     * @return bool
+     */
+    public function on_SMTP_RCPT_TO($data) {
+        return true;
 
-	}
+    }
 
-	/**
-	 * Event called on SMTP RCPT TO reception
-	 *
-	 * Extend this method to return the boolean status of the session (false = disconnect client)
-	 *
-	 * @param string $data remote RCPT TO message
-	 * @return bool
-	 */
-	public function on_SMTP_RCPT_TO($data) {
+    /**
+     * Event called on unknown SMTP command reception
+     *
+     * Extend this method to return the boolean status of the session (false = disconnect client)
+     *
+     * @param  string $data entire command line
+     * @return bool
+     */
+    public function on_SMTP_Unhandled($data) {
 
-		return true;
+        $this->Write("500 Unknown command : '$data'\n");
 
-	}
+        return true;
 
-	/**
-	 * Event called on unknown SMTP command reception
-	 *
-	 * Extend this method to return the boolean status of the session (false = disconnect client)
-	 *
-	 * @param string $data entire command line
-	 * @return bool
-	 */
-	public function on_SMTP_Unhandled($data) {
+    }
 
-		$this->Write("500 Unknown command : '$data'\n");
+    /**
+     * Event called on mail reception
+     *
+     * if true is returned, a "message accepted" reply will be sent, and "message rejected" for false
+     *
+     * @param  string $env_from
+     * @param  array  $env_to
+     * @param  string $data     this includes mail headers and content
+     * @return bool
+     */
+    public function on_Mail($env_from, $env_to, $data) {
 
-		return true;
-
-	}
-
-	/**
-	 * Event called on mail reception
-	 *
-	 * if true is returned, a "message accepted" reply will be sent, and "message rejected" for false
-	 *
-	 * @param string $env_from
-	 * @param array $env_to
-	 * @param string $data this includes mail headers and content
-	 * @return bool
-	 */
-	public function on_Mail($env_from, $env_to, $data) {
-
-	}
+    }
 
 }

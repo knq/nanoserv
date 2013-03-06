@@ -11,15 +11,14 @@ namespace Nanoserv;
  */
 class ClientException extends namespace\Exception {
 
-	public $handler;
+    public $handler;
 
-	public function __construct($errmsg, $errno, $addr, Handler $handler = NULL) {
+    public function __construct($errmsg, $errno, $addr, Handler $handler = NULL) {
 
-		parent::__construct($errmsg, $errno, $addr);
+        parent::__construct($errmsg, $errno, $addr);
 
-		$this->handler = $handler;
+        $this->handler = $handler;
 
-	}
+    }
 
 }
-

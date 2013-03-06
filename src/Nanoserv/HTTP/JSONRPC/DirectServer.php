@@ -36,10 +36,10 @@ namespace Nanoserv\HTTP\JSONRPC;
  */
 abstract class DirectServer extends namespace\Server {
 
-	final public function on_Call($method, $args) {
+    final public function on_Call($method, $args) {
 
-		if (is_callable(array($this, $method))) return call_user_func_array(array($this, $method), $args);
+        if (is_callable(array($this, $method))) return call_user_func_array(array($this, $method), $args);
 
-	}
+    }
 
 }

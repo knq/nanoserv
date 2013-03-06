@@ -11,15 +11,14 @@ namespace Nanoserv;
  */
 abstract class Exception extends \Exception {
 
-	public $addr;
+    public $addr;
 
-	public function __construct($errmsg, $errno, $addr) {
+    public function __construct($errmsg, $errno, $addr) {
 
-		parent::__construct($errmsg, $errno);
+        parent::__construct($errmsg, $errno);
 
-		$this->addr = $addr;
+        $this->addr = $addr;
 
-	}
+    }
 
 }
-

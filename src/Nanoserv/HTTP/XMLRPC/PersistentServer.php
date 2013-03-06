@@ -36,27 +36,26 @@ use Nanoserv;
  */
 class PersistentServer extends Nanoserv\HTTP\XMLRPC\Server {
 
-	/**
-	 * Persistent object
-	 * @var object
-	 */
-	private $wrapped;
+    /**
+     * Persistent object
+     * @var object
+     */
+    private $wrapped;
 
-	/**
-	 * Persistent XML-RPC server constructor
-	 *
-	 * @param object $o
-	 */
-	public function __construct($o) {
+    /**
+     * Persistent XML-RPC server constructor
+     *
+     * @param object $o
+     */
+    public function __construct($o) {
 
-		$this->wrapped = $o;
+        $this->wrapped = $o;
 
-	}
+    }
 
-	final public function on_Call($method, $args) {
+    final public function on_Call($method, $args) {
+        return call_user_func_array(array($this->wrapped, $method), $args);
 
-		return call_user_func_array(array($this->wrapped, $method), $args);
-
-	}
+    }
 
 }

@@ -54,952 +54,950 @@ use Nanoserv\ClientException,
  */
 final class Core {
 
-	/**
-	 * nanoserv current version number
-	 * @var string
-	 */
-	const VERSION = "2.3.0";
-
-	/**
-	 * Registered listeners
-	 * @var array
-	 */
-	static private $listeners = array();
-
-	/**
-	 * Write buffers
-	 * @var array
-	 */
-	static private $write_buffers = array();
-
-	/**
-	 * Active connections
-	 * @var array
-	 */
-	static private $connections = array();
-
-	/**
-	 * Active datagram handlers
-	 * @var array
-	 */
-	static private $dgram_handlers = array();
-
-	/**
-	 * Shared objects
-	 * @var array
-	 */
-	static private $shared_objects = array();
-
-	/**
-	 * Forked process pipes
-	 * @var array
-	 */
-	static private $forked_pipes = array();
-
-	/**
-	 * Timers
-	 * @var array
-	 */
-	static private $timers = array();
-
-	/**
-	 * Timers updated
-	 * @var bool
-	 */
-	static private $timers_updated = false;
-
-	/**
-	 * Number of active connection handler processes
-	 * @var int
-	 */
-	static public $nb_forked_processes = 0;
-
-	/**
-	 * Maximum number of active children before incoming connections get delayed
-	 * @var int
-	 */
-	static public $max_forked_processes = 64;
-
-	/**
-	 * Are we master or child process ?
-	 * @var bool
-	 */
-	static public $child_process = false;
-
-	/**
-	 * Forked server handled connection
-	 * @var ConnectionHandler
-	 */
-	static private $forked_connection;
-
-	/**
-	 * Forked server pipe to the master process
-	 * @var Socket
-	 */
-	static public $master_pipe;
-
-	/**
-	 * Class Nanoserv should not be instanciated but used statically
-	 */
-	private function __construct() {
-
-	}
-
-	/**
-	 * Register a new listener
-	 *
-	 * For consistency New_Listener() will also wrap Core::New_Datagram_Handler() if the given addr is of type "udp"
-	 *
-	 * @param string $addr
-	 * @param string $handler_classname
-	 * @param mixed $handler_options
-	 * @return Listener
-	 * @see Listener
-	 * @see DatagramHandler
-	 * @since 0.9
-	 */
-	static public function New_Listener($addr, $handler_classname, $handler_options=false) {
+    /**
+     * nanoserv current version number
+     * @var string
+     */
+    const VERSION = "2.3.0";
+
+    /**
+     * Registered listeners
+     * @var array
+     */
+    private static $listeners = array();
+
+    /**
+     * Write buffers
+     * @var array
+     */
+    private static $write_buffers = array();
+
+    /**
+     * Active connections
+     * @var array
+     */
+    private static $connections = array();
+
+    /**
+     * Active datagram handlers
+     * @var array
+     */
+    private static $dgram_handlers = array();
+
+    /**
+     * Shared objects
+     * @var array
+     */
+    private static $shared_objects = array();
+
+    /**
+     * Forked process pipes
+     * @var array
+     */
+    private static $forked_pipes = array();
+
+    /**
+     * Timers
+     * @var array
+     */
+    private static $timers = array();
+
+    /**
+     * Timers updated
+     * @var bool
+     */
+    private static $timers_updated = false;
+
+    /**
+     * Number of active connection handler processes
+     * @var int
+     */
+    public static $nb_forked_processes = 0;
+
+    /**
+     * Maximum number of active children before incoming connections get delayed
+     * @var int
+     */
+    public static $max_forked_processes = 64;
+
+    /**
+     * Are we master or child process ?
+     * @var bool
+     */
+    public static $child_process = false;
+
+    /**
+     * Forked server handled connection
+     * @var ConnectionHandler
+     */
+    private static $forked_connection;
+
+    /**
+     * Forked server pipe to the master process
+     * @var Socket
+     */
+    public static $master_pipe;
+
+    /**
+     * Class Nanoserv should not be instanciated but used statically
+     */
+    private function __construct() {
+
+    }
+
+    /**
+     * Register a new listener
+     *
+     * For consistency New_Listener() will also wrap Core::New_Datagram_Handler() if the given addr is of type "udp"
+     *
+     * @param  string   $addr
+     * @param  string   $handler_classname
+     * @param  mixed    $handler_options
+     * @return Listener
+     * @see Listener
+     * @see DatagramHandler
+     * @since 0.9
+     */
+    public static function New_Listener($addr, $handler_classname, $handler_options=false) {
 
-		if (strtolower(strtok($addr, ":")) == "udp") {
+        if (strtolower(strtok($addr, ":")) == "udp") {
 
-			$l = self::New_Datagram_Handler($addr, $handler_classname);
+            $l = self::New_Datagram_Handler($addr, $handler_classname);
 
-		} else {
+        } else {
 
-			$l = new Listener($addr, $handler_classname, $handler_options);
-			self::$listeners[] = $l;
+            $l = new Listener($addr, $handler_classname, $handler_options);
+            self::$listeners[] = $l;
 
-		}
+        }
 
-		return $l;
+        return $l;
 
-	}
+    }
 
-	/**
-	 * Deactivate and free a previously registered listener
-	 *
-	 * For consistency Free_Listener() will also wrap Core::Free_Datagram_Handler() if the given object is an instance of DatagramHandler
-	 *
-	 * @param Listener $l
-	 * @return bool
-	 * @see Listener
-	 * @see DatagramHandler
-	 * @since 0.9
-	 */
-	static public function Free_Listener($l) {
+    /**
+     * Deactivate and free a previously registered listener
+     *
+     * For consistency Free_Listener() will also wrap Core::Free_Datagram_Handler() if the given object is an instance of DatagramHandler
+     *
+     * @param  Listener $l
+     * @return bool
+     * @see Listener
+     * @see DatagramHandler
+     * @since 0.9
+     */
+    public static function Free_Listener($l) {
 
-		if ($l instanceof Listener) {
+        if ($l instanceof Listener) {
 
-			foreach (self::$listeners as $k => $v) if ($v === $l) {
+            foreach (self::$listeners as $k => $v) if ($v === $l) {
 
-				unset(self::$listeners[$k]);
-				return true;
+                unset(self::$listeners[$k]);
 
-			}
+                return true;
 
-		} else if ($l instanceof DatagramHandler) {
+            }
 
-			return self::Free_Datagram_Handler($l);
+        } elseif ($l instanceof DatagramHandler) {
+            return self::Free_Datagram_Handler($l);
 
-		}
+        }
 
-		return false;
+        return false;
 
-	}
+    }
 
-	/**
-	 * Register a new static write buffer
-	 *
-	 * This method is used by ConnectionHandler::Write() and should not be
-	 * called unless you really know what you are doing
-	 *
-	 * @param Socket $socket
-	 * @param string $data
-	 * @param mixed $callback
-	 * @return StaticWriteBuffer
-	 * @see ConnectionHandler::Write()
-	 * @since 0.9
-	 */
-	static public function New_Static_Write_Buffer(Socket $socket, $data, $callback=false) {
+    /**
+     * Register a new static write buffer
+     *
+     * This method is used by ConnectionHandler::Write() and should not be
+     * called unless you really know what you are doing
+     *
+     * @param  Socket            $socket
+     * @param  string            $data
+     * @param  mixed             $callback
+     * @return StaticWriteBuffer
+     * @see ConnectionHandler::Write()
+     * @since 0.9
+     */
+    public static function New_Static_Write_Buffer(Socket $socket, $data, $callback=false) {
 
-		$wb = new StaticWriteBuffer($socket, $data, $callback);
+        $wb = new StaticWriteBuffer($socket, $data, $callback);
 
-		$wb->Write();
+        $wb->Write();
 
-		if ($wb->Waiting_Data()) {
+        if ($wb->Waiting_Data()) {
 
-			self::$write_buffers[$socket->id][] = $wb;
+            self::$write_buffers[$socket->id][] = $wb;
 
-		}
+        }
 
-		return $wb;
+        return $wb;
 
-	}
+    }
 
-	/**
-	 * Register a new static write buffer
-	 *
-	 * This method is used by ConnectionHandler::Write_Stream() and should not be
-	 * called unless you really know what you are doing
-	 *
-	 * @param Socket $socket
-	 * @param resource $stream
-	 * @param mixed $callback
-	 * @return StreamWriteBuffer
-	 * @see ConnectionHandler::Write_Stream()
-	 * @since 0.9
-	 */
-	static public function New_Stream_Write_Buffer(Socket $socket, $data, $callback=false) {
+    /**
+     * Register a new static write buffer
+     *
+     * This method is used by ConnectionHandler::Write_Stream() and should not be
+     * called unless you really know what you are doing
+     *
+     * @param  Socket            $socket
+     * @param  resource          $stream
+     * @param  mixed             $callback
+     * @return StreamWriteBuffer
+     * @see ConnectionHandler::Write_Stream()
+     * @since 0.9
+     */
+    public static function New_Stream_Write_Buffer(Socket $socket, $data, $callback=false) {
 
-		$wb = new StreamWriteBuffer($socket, $data, $callback);
+        $wb = new StreamWriteBuffer($socket, $data, $callback);
 
-		$wb->Write();
+        $wb->Write();
 
-		if ($wb->Waiting_Data()) {
+        if ($wb->Waiting_Data()) {
 
-			self::$write_buffers[$socket->id][] = $wb;
+            self::$write_buffers[$socket->id][] = $wb;
 
-		}
+        }
 
-		return $wb;
+        return $wb;
 
-	}
+    }
 
-	/**
-	 * Free a registered write buffer
-	 *
-	 * @param int $sid socket id
-	 * @since 0.9
-	 */
-	static public function Free_Write_Buffers($sid) {
+    /**
+     * Free a registered write buffer
+     *
+     * @param int $sid socket id
+     * @since 0.9
+     */
+    public static function Free_Write_Buffers($sid) {
 
-		unset(self::$write_buffers[$sid]);
+        unset(self::$write_buffers[$sid]);
 
-	}
+    }
 
-	/**
-	 * Register a new outgoing connection
-	 *
-	 * @param string $addr
-	 * @param string $handler_classname
-	 * @param mixed $handler_options
-	 * @return ConnectionHandler
-	 * @see ConnectionHandler
-	 * @since 0.9
-	 */
-	static public function New_Connection($addr, $handler_classname, $handler_options=false) {
+    /**
+     * Register a new outgoing connection
+     *
+     * @param  string            $addr
+     * @param  string            $handler_classname
+     * @param  mixed             $handler_options
+     * @return ConnectionHandler
+     * @see ConnectionHandler
+     * @since 0.9
+     */
+    public static function New_Connection($addr, $handler_classname, $handler_options=false) {
 
-		$sck = new ClientSocket($addr);
-		$h = new $handler_classname($handler_options);
+        $sck = new ClientSocket($addr);
+        $h = new $handler_classname($handler_options);
 
-		$h->socket = $sck;
+        $h->socket = $sck;
 
-		self::$connections[$sck->id] = $h;
+        self::$connections[$sck->id] = $h;
 
-		return $h;
+        return $h;
 
-	}
+    }
 
-	/**
-	 * Free an allocated connection
-	 *
-	 * @param ConnectionHandler $h
-	 * @return bool
-	 * @since 0.9
-	 */
-	static public function Free_Connection(ConnectionHandler $h) {
+    /**
+     * Free an allocated connection
+     *
+     * @param  ConnectionHandler $h
+     * @return bool
+     * @since 0.9
+     */
+    public static function Free_Connection(ConnectionHandler $h) {
 
-		$so = $h->socket;
+        $so = $h->socket;
 
-		unset(self::$connections[$so->id]);
-		self::Free_Write_Buffers($so->id);
+        unset(self::$connections[$so->id]);
+        self::Free_Write_Buffers($so->id);
 
-		$so->pending_connect = $so->pending_crypto = $so->connected = false;
+        $so->pending_connect = $so->pending_crypto = $so->connected = false;
 
-		if (self::$child_process && (self::$forked_connection === $h)) exit();
+        if (self::$child_process && (self::$forked_connection === $h)) exit();
+        return true;
 
-		return true;
+    }
 
-	}
+    /**
+     * Register a new datagram (udp) handler
+     *
+     * @param  string          $addr
+     * @param  string          $handler_classname
+     * @return DatagramHandler
+     * @see DatagramHandler
+     * @since 0.9.61
+     */
+    public static function New_Datagram_Handler($addr, $handler_classname) {
 
-	/**
-	 * Register a new datagram (udp) handler
-	 *
-	 * @param string $addr
-	 * @param string $handler_classname
-	 * @return DatagramHandler
-	 * @see DatagramHandler
-	 * @since 0.9.61
-	 */
-	static public function New_Datagram_Handler($addr, $handler_classname) {
+        $h = new $handler_classname($addr);
+        self::$dgram_handlers[$h->socket->id] = $h;
 
-		$h = new $handler_classname($addr);
-		self::$dgram_handlers[$h->socket->id] = $h;
+        return $h;
 
-		return $h;
+    }
 
-	}
+    /**
+     * Deactivate and free a datagram handler
+     *
+     * @param  DatagramHandler $h
+     * @return bool
+     * @since 0.9.61
+     */
+    public static function Free_Datagram_Handler(DatagramHandler $h) {
 
-	/**
-	 * Deactivate and free a datagram handler
-	 *
-	 * @param DatagramHandler $h
-	 * @return bool
-	 * @since 0.9.61
-	 */
-	static public function Free_Datagram_Handler(DatagramHandler $h) {
+        unset(self::$dgram_handlers[$h->socket->id]);
 
-		unset(self::$dgram_handlers[$h->socket->id]);
+        return true;
 
-		return true;
+    }
 
-	}
+    /**
+     * Register a new shared object
+     *
+     * shared objects allow forked processes to use objects stored on the master process
+     * if $o is ommited, a new StdClass empty object is created
+     *
+     * @param  object       $o
+     * @return SharedObject
+     * @since 0.9
+     */
+    public static function New_Shared_Object($o = false) {
 
-	/**
-	 * Register a new shared object
-	 *
-	 * shared objects allow forked processes to use objects stored on the master process
-	 * if $o is ommited, a new StdClass empty object is created
-	 *
-	 * @param object $o
-	 * @return SharedObject
-	 * @since 0.9
-	 */
-	static public function New_Shared_Object($o = false) {
+        $shr = new SharedObject($o);
 
-		$shr = new SharedObject($o);
+        self::$shared_objects[$shr->_oid] = $shr;
 
-		self::$shared_objects[$shr->_oid] = $shr;
+        return $shr;
 
-		return $shr;
+    }
 
-	}
+    /**
+     * Free a shared object
+     *
+     * @param SharedObject $o
+     * @since 0.9
+     */
+    public static function Free_Shared_Object(SharedObject $o) {
 
-	/**
-	 * Free a shared object
-	 *
-	 * @param SharedObject $o
-	 * @since 0.9
-	 */
-	static public function Free_Shared_Object(SharedObject $o) {
+        unset(self::$shared_objects[$o->_oid]);
 
-		unset(self::$shared_objects[$o->_oid]);
+    }
 
-	}
+    /**
+     * Register a new timer callback
+     *
+     * @param  float $delay    specified in seconds
+     * @param  mixed $callback may be "function" or array($obj, "method")
+     * @return Timer
+     * @since 0.9
+     */
+    public static function New_Timer($delay, $callback) {
 
-	/**
-	 * Register a new timer callback
-	 *
-	 * @param float $delay specified in seconds
-	 * @param mixed $callback may be "function" or array($obj, "method")
-	 * @return Timer
-	 * @since 0.9
-	 */
-	static public function New_Timer($delay, $callback) {
+        $t = new Timer(microtime(true) + $delay, $callback);
 
-		$t = new Timer(microtime(true) + $delay, $callback);
+        self::$timers[] = $t;
+        self::$timers_updated = true;
 
-		self::$timers[] = $t;
-		self::$timers_updated = true;
+        return $t;
 
-		return $t;
+    }
 
-	}
+    /**
+     * Clear all existing timers
+     *
+     * @return int number of timers cleared
+     * @since 2.0
+     */
+    public static function Clear_Timers() {
 
-	/**
-	 * Clear all existing timers
-	 *
-	 * @return int number of timers cleared
-	 * @since 2.0
-	 */
-	static public function Clear_Timers() {
+        $ret = count(self::$timers);
 
-		$ret = count(self::$timers);
+        self::$timers = array();
 
-		self::$timers = array();
+        return $ret;
 
-		return $ret;
+    }
 
-	}
+    /**
+     * Get all registered ConnectionHandler objects
+     *
+     * Note: connections created by fork()ing listeners can not be retreived this way
+     *
+     * @param  bool  $include_pending_connect
+     * @return array
+     * @since 0.9
+     */
+    public static function Get_Connections($include_pending_connect=false) {
 
-	/**
-	 * Get all registered ConnectionHandler objects
-	 *
-	 * Note: connections created by fork()ing listeners can not be retreived this way
-	 *
-	 * @param bool $include_pending_connect
-	 * @return array
-	 * @since 0.9
-	 */
-	static public function Get_Connections($include_pending_connect=false) {
+        $ret = array();
 
-		$ret = array();
+        foreach (self::$connections as $c) if ($c->socket->connected || $include_pending_connect) $ret[] = $c;
 
-		foreach (self::$connections as $c) if ($c->socket->connected || $include_pending_connect) $ret[] = $c;
+        return $ret;
 
-		return $ret;
+    }
 
-	}
+    /**
+     * Get all registered Listener objects
+     *
+     * @param  bool  $include_inactive
+     * @return array
+     * @since 0.9
+     */
+    public static function Get_Listeners($include_inactive=false) {
 
-	/**
-	 * Get all registered Listener objects
-	 *
-	 * @param bool $include_inactive
-	 * @return array
-	 * @since 0.9
-	 */
-	static public function Get_Listeners($include_inactive=false) {
+        $ret = array();
 
-		$ret = array();
+        foreach (self::$listeners as $l) if ($l->active || $include_inactive) $ret[] = $l;
 
-		foreach (self::$listeners as $l) if ($l->active || $include_inactive) $ret[] = $l;
+        return $ret;
 
-		return $ret;
+    }
 
-	}
+    /**
+     * Get all registered Timer objects
+     *
+     * @param  bool  $include_inactive
+     * @return array
+     * @since 2.0.1
+     */
+    public static function Get_Timers($include_inactive=false) {
 
-	/**
-	 * Get all registered Timer objects
-	 *
-	 * @param bool $include_inactive
-	 * @return array
-	 * @since 2.0.1
-	 */
-	static public function Get_Timers($include_inactive=false) {
+        $ret = array();
 
-		$ret = array();
+        foreach (self::$timers as $t) if ($t->active || $include_inactive) $ret[] = $t;
 
-		foreach (self::$timers as $t) if ($t->active || $include_inactive) $ret[] = $t;
+        return $ret;
 
-		return $ret;
+    }
 
-	}
+    /**
+     * Set the maximum number of allowed children processes before delaying incoming connections
+     *
+     * Note: this setting only affect and applies to forking listeners
+     *
+     * @param int $i
+     * @since 2.0
+     */
+    public static function Set_Max_Children($i) {
 
-	/**
-	 * Set the maximum number of allowed children processes before delaying incoming connections
-	 *
-	 * Note: this setting only affect and applies to forking listeners
-	 *
-	 * @param int $i
-	 * @since 2.0
-	 */
-	static public function Set_Max_Children($i) {
+        self::$max_forked_processes = $i;
 
-		self::$max_forked_processes = $i;
+    }
 
-	}
+    /**
+     * Flush all write buffers
+     *
+     * @since 2.0
+     */
+    public static function Flush_Write_Buffers() {
 
-	/**
-	 * Flush all write buffers
-	 *
-	 * @since 2.0
-	 */
-	static public function Flush_Write_Buffers() {
+        while (self::$write_buffers) {
 
-		while (self::$write_buffers) {
+            self::Run(1);
 
-			self::Run(1);
+        }
 
-		}
+    }
 
-	}
+    /**
+     * Fork and setup IPC sockets
+     *
+     * @return int the pid of the created process, 0 if child process
+     * @since 0.9.63
+     */
+    public static function Fork() {
 
-	/**
-	 * Fork and setup IPC sockets
-	 *
-	 * @return int the pid of the created process, 0 if child process
-	 * @since 0.9.63
-	 */
-	static public function Fork() {
+        if ($has_shared = (SharedObject::$shared_count > 0)) {
 
-		if ($has_shared = (SharedObject::$shared_count > 0)) {
+            list($s1, $s2) = IPCSocket::Pair();
 
-			list($s1, $s2) = IPCSocket::Pair();
+        }
 
-		}
+        $pid = pcntl_fork();
 
-		$pid = pcntl_fork();
+        if ($pid === 0) {
 
-		if ($pid === 0) {
+            self::$child_process = true;
 
-			self::$child_process = true;
+            if ($has_shared) {
 
-			if ($has_shared) {
+                self::$master_pipe = $s2;
 
-				self::$master_pipe = $s2;
+            }
 
-			}
+        } elseif ($pid > 0) {
 
-		} else if ($pid > 0) {
+            ++self::$nb_forked_processes;
 
-			++self::$nb_forked_processes;
+            if ($has_shared) {
 
-			if ($has_shared) {
+                $s1->pid = $pid;
+                self::$forked_pipes[$pid] = $s1;
 
-				$s1->pid = $pid;
-				self::$forked_pipes[$pid] = $s1;
+            }
 
-			}
+        }
 
-		}
+        return $pid;
 
-		return $pid;
+    }
 
-	}
+    /**
+     * Enter main loop
+     *
+     * The <var>$time</var> parameter can have different meanings:
+     * <ul>
+     * <li>int or float > 0 : the main loop will run once and will wait for activity for a maximum of <var>$time</var> seconds</li>
+     * <li>0 : the main loop will run once and will not wait for activity when polling, only handling waiting packets and timers</li>
+     * <li>int or float < 0 : the main loop will run for -<var>$time</var> seconds exactly, whatever may happen</li>
+     * <li>NULL : the main loop will run forever</li>
+     * </ul>
+     *
+     * @param  float $time         how much time should we run, if omited nanoserv will enter an endless loop
+     * @param  array $user_streams if specified, user streams will be polled along with internal streams
+     * @return array the user streams with pending data
+     * @since 0.9
+     */
+    public static function Run($time = NULL, array $user_streams = NULL) {
 
-	/**
-	 * Enter main loop
-	 *
-	 * The <var>$time</var> parameter can have different meanings:
-	 * <ul>
-	 * <li>int or float > 0 : the main loop will run once and will wait for activity for a maximum of <var>$time</var> seconds</li>
-	 * <li>0 : the main loop will run once and will not wait for activity when polling, only handling waiting packets and timers</li>
-	 * <li>int or float < 0 : the main loop will run for -<var>$time</var> seconds exactly, whatever may happen</li>
-	 * <li>NULL : the main loop will run forever</li>
-	 * </ul>
-	 *
-	 * @param float $time how much time should we run, if omited nanoserv will enter an endless loop
-	 * @param array $user_streams if specified, user streams will be polled along with internal streams
-	 * @return array the user streams with pending data
-	 * @since 0.9
-	 */
-	static public function Run($time = NULL, array $user_streams = NULL) {
+        $tmp = 0;
 
-		$tmp = 0;
+        $ret = array();
 
-		$ret = array();
+        if (isset($time)) {
 
-		if (isset($time)) {
+            if ($time < 0) {
 
-			if ($time < 0) {
+                $poll_max_wait = -$time;
+                $exit_mt = microtime(true) - $time;
 
-				$poll_max_wait = -$time;
-				$exit_mt = microtime(true) - $time;
+            } else {
 
-			} else {
+                $poll_max_wait = $time;
+                $exit = true;
 
-				$poll_max_wait = $time;
-				$exit = true;
+            }
 
-			}
+        } else {
 
-		} else {
+            $poll_max_wait = 60;
+            $exit = false;
 
-			$poll_max_wait = 60;
-			$exit = false;
+        }
 
-		}
+        do {
 
-		do {
+            $t = microtime(true);
 
-			$t = microtime(true);
+            // Timers
 
-			// Timers
+            if (self::$timers_updated) {
 
-			if (self::$timers_updated) {
+                usort(self::$timers, function(Timer $a, Timer $b) { return $a->microtime > $b->microtime; });
+                self::$timers_updated = false;
 
-				usort(self::$timers, function(Timer $a, Timer $b) { return $a->microtime > $b->microtime; });
-				self::$timers_updated = false;
+            }
 
-			}
+            $next_timer_md = NULL;
 
-			$next_timer_md = NULL;
+            if (self::$timers) foreach (self::$timers as $k => $tmr) {
 
-			if (self::$timers) foreach (self::$timers as $k => $tmr) {
+                if ($tmr->microtime > $t) {
 
-				if ($tmr->microtime > $t) {
+                    $next_timer_md = $tmr->microtime - $t;
+                    break;
 
-					$next_timer_md = $tmr->microtime - $t;
-					break;
+                } elseif ($tmr->active) {
 
-				} else if ($tmr->active) {
+                    $tmr->Deactivate();
+                    call_user_func($tmr->callback);
 
-					$tmr->Deactivate();
-					call_user_func($tmr->callback);
+                }
 
-				}
+                unset(self::$timers[$k]);
 
-				unset(self::$timers[$k]);
+            }
 
-			}
+            if (self::$timers_updated) {
 
-			if (self::$timers_updated) {
+                $t = microtime(true);
 
-				$t = microtime(true);
+                usort(self::$timers, function(Timer $a, Timer $b) { return $a->microtime > $b->microtime; });
 
-				usort(self::$timers, function(Timer $a, Timer $b) { return $a->microtime > $b->microtime; });
+                foreach (self::$timers as $tmr) {
 
-				foreach (self::$timers as $tmr) {
+                    if ($tmr->microtime > $t) {
 
-					if ($tmr->microtime > $t) {
+                        $next_timer_md = $tmr->microtime - $t;
+                        break;
 
-						$next_timer_md = $tmr->microtime - $t;
-						break;
+                    }
 
-					}
+                }
 
-				}
+                self::$timers_updated = false;
 
-				self::$timers_updated = false;
+            }
 
-			}
+            // Write buffers to non blocked sockets
 
-			// Write buffers to non blocked sockets
+            foreach (self::$write_buffers as $write_buffers) {
 
-			foreach (self::$write_buffers as $write_buffers) {
+                if (!$write_buffers || $write_buffers[0]->socket->blocked || !$write_buffers[0]->socket->connected) continue;
 
-				if (!$write_buffers || $write_buffers[0]->socket->blocked || !$write_buffers[0]->socket->connected) continue;
+                foreach ($write_buffers as $wb) {
 
-				foreach ($write_buffers as $wb) {
+                    while ($wb->Waiting_Data() && !$wb->socket->blocked) {
 
-					while ($wb->Waiting_Data() && !$wb->socket->blocked) {
+                        $wb->Write();
 
-						$wb->Write();
+                        if (!$wb->Waiting_Data()) {
 
-						if (!$wb->Waiting_Data()) {
+                            array_shift(self::$write_buffers[$wb->socket->id]);
+                            if (!self::$write_buffers[$wb->socket->id]) self::Free_Write_Buffers($wb->socket->id);
 
-							array_shift(self::$write_buffers[$wb->socket->id]);
-							if (!self::$write_buffers[$wb->socket->id]) self::Free_Write_Buffers($wb->socket->id);
+                            break;
 
-							break;
+                        }
 
-						}
+                    }
 
-					}
+                }
 
-				}
+            }
 
-			}
+            $handler = $so = $write_buffers = $l = $c = $wbs = $wb = $data = $so = NULL;
 
-			$handler = $so = $write_buffers = $l = $c = $wbs = $wb = $data = $so = NULL;
+            // Prepare socket arrays
 
-			// Prepare socket arrays
+            $fd_lookup_r = $fd_lookup_w = $rfd = $wfd = $efd = array();
 
-			$fd_lookup_r = $fd_lookup_w = $rfd = $wfd = $efd = array();
+            foreach (self::$listeners as $l) if (($l->active) && ((!$l->forking) || (self::$nb_forked_processes <= self::$max_forked_processes))) {
 
-			foreach (self::$listeners as $l) if (($l->active) && ((!$l->forking) || (self::$nb_forked_processes <= self::$max_forked_processes))) {
+                $fd = $l->socket->fd;
+                $rfd[] = $fd;
+                $fd_lookup_r[(int) $fd] = $l;
 
-				$fd = $l->socket->fd;
-				$rfd[] = $fd;
-				$fd_lookup_r[(int)$fd] = $l;
+            }
 
-			}
+            $next_conn_timeout_mt = NULL;
 
-			$next_conn_timeout_mt = NULL;
+            foreach (self::$connections as $c) {
 
-			foreach (self::$connections as $c) {
+                $so = $c->socket;
 
-				$so = $c->socket;
+                if ($so->pending_crypto) {
 
-				if ($so->pending_crypto) {
+                    $cr = $so->Enable_Crypto();
 
-					$cr = $so->Enable_Crypto();
+                    if ($cr === true) {
 
-					if ($cr === true) {
+                        $c->on_Accept();
 
-						$c->on_Accept();
+                    } elseif ($cr === false) {
 
-					} else if ($cr === false) {
+                        $c->on_Connect_Fail(ConnectionHandler::FAIL_CRYPTO);
+                        self::Free_Connection($c);
 
-						$c->on_Connect_Fail(ConnectionHandler::FAIL_CRYPTO);
-						self::Free_Connection($c);
+                    } else {
 
-					} else {
+                        $fd = $so->fd;
+                        $rfd[] = $fd;
+                        $fd_lookup_r[(int) $fd] = $c;
 
-						$fd = $so->fd;
-						$rfd[] = $fd;
-						$fd_lookup_r[(int)$fd] = $c;
+                    }
 
-					}
+                } elseif ($so->connected) {
 
-				} else if ($so->connected) {
+                    if (!$so->block_reads) {
 
-					if (!$so->block_reads) {
+                        $fd = $so->fd;
+                        $rfd[] = $fd;
+                        $fd_lookup_r[(int) $fd] = $c;
 
-						$fd = $so->fd;
-						$rfd[] = $fd;
-						$fd_lookup_r[(int)$fd] = $c;
+                    }
 
-					}
+                } elseif ($so->connect_timeout < $t) {
 
-				} else if ($so->connect_timeout < $t) {
+                    $c->on_Connect_Fail(ConnectionHandler::FAIL_TIMEOUT);
+                    self::Free_Connection($c);
 
-					$c->on_Connect_Fail(ConnectionHandler::FAIL_TIMEOUT);
-					self::Free_Connection($c);
+                } elseif ($so->pending_connect) {
 
-				} else if ($so->pending_connect) {
+                    $fd = $so->fd;
+                    $wfd[] = $fd;
+                    $fd_lookup_w[(int) $fd] = $c;
 
-					$fd = $so->fd;
-					$wfd[] = $fd;
-					$fd_lookup_w[(int)$fd] = $c;
+                    if (!$next_conn_timeout_mt || ($sc->connect_timeout < $next_conn_timeout_mt)) {
 
-					if (!$next_conn_timeout_mt || ($sc->connect_timeout < $next_conn_timeout_mt)) {
+                        $next_conn_timeout_mt = $sc->connect_timeout;
 
-						$next_conn_timeout_mt = $sc->connect_timeout;
+                    }
 
-					}
+                }
 
-				}
+            }
 
-			}
+            if (self::$dgram_handlers) foreach (self::$dgram_handlers as $l) if ($l->active) {
 
-			if (self::$dgram_handlers) foreach (self::$dgram_handlers as $l) if ($l->active) {
+                $fd = $l->socket->fd;
+                $rfd[] = $fd;
+                $fd_lookup_r[(int) $fd] = $l;
 
-				$fd = $l->socket->fd;
-				$rfd[] = $fd;
-				$fd_lookup_r[(int)$fd] = $l;
+            }
 
-			}
+            foreach (self::$write_buffers as $wbs) if ($wbs[0]->socket->blocked) {
 
-			foreach (self::$write_buffers as $wbs) if ($wbs[0]->socket->blocked) {
+                $fd = $wbs[0]->socket->fd;
+                $wfd[] = $fd;
+                $fd_lookup_w[(int) $fd] = self::$connections[$wbs[0]->socket->id];
 
-				$fd = $wbs[0]->socket->fd;
-				$wfd[] = $fd;
-				$fd_lookup_w[(int)$fd] = self::$connections[$wbs[0]->socket->id];
+            }
 
-			}
+            if (self::$forked_pipes) foreach (self::$forked_pipes as $fp) {
 
-			if (self::$forked_pipes) foreach (self::$forked_pipes as $fp) {
+                $fd = $fp->fd;
+                $rfd[] = $fd;
+                $fd_lookup_r[(int) $fd] = $fp;
 
-				$fd = $fp->fd;
-				$rfd[] = $fd;
-				$fd_lookup_r[(int)$fd] = $fp;
+            }
 
-			}
+            if (isset($user_streams)) {
 
-			if (isset($user_streams)) {
+                foreach ((array) $user_streams[0] as $tmp_r) $rfd[] = $tmp_r;
+                foreach ((array) $user_streams[1] as $tmp_w) $wfd[] = $tmp_w;
 
-				foreach ((array)$user_streams[0] as $tmp_r) $rfd[] = $tmp_r;
-				foreach ((array)$user_streams[1] as $tmp_w) $wfd[] = $tmp_w;
+            }
 
-			}
+            // Main select
 
-			// Main select
+            $wait_mds = array($poll_max_wait);
+            if (isset($next_timer_md)) $wait_mds[] = $next_timer_md;
+            if (isset($exit_mt)) $wait_mds[] = $exit_mt - $t;
+            if (isset($next_conn_timeout_mt)) $wait_mds[] = $next_conn_timeout_mt - $t;
 
-			$wait_mds = array($poll_max_wait);
-			if (isset($next_timer_md)) $wait_mds[] = $next_timer_md;
-			if (isset($exit_mt)) $wait_mds[] = $exit_mt - $t;
-			if (isset($next_conn_timeout_mt)) $wait_mds[] = $next_conn_timeout_mt - $t;
+            $wait_md = min($wait_mds);
 
-			$wait_md = min($wait_mds);
+            $tv_sec = (int) $wait_md;
+            $tv_usec = ($wait_md - $tv_sec) * 1000000;
 
-			$tv_sec = (int)$wait_md;
-			$tv_usec = ($wait_md - $tv_sec) * 1000000;
+            if (($rfd || $wfd) && (@stream_select($rfd, $wfd, $efd, $tv_sec, $tv_usec))) {
 
-			if (($rfd || $wfd) && (@stream_select($rfd, $wfd, $efd, $tv_sec, $tv_usec))) {
+                foreach ($rfd as $act_rfd) {
 
-				foreach ($rfd as $act_rfd) {
+                    $handler = $fd_lookup_r[(int) $act_rfd];
+                    $so = $handler->socket;
 
-					$handler = $fd_lookup_r[(int)$act_rfd];
-					$so = $handler->socket;
+                    if ($handler instanceof ConnectionHandler) {
 
-					if ($handler instanceof ConnectionHandler) {
+                        if ($so->pending_crypto) {
 
-						if ($so->pending_crypto) {
+                            $cr = $so->Enable_Crypto();
 
-							$cr = $so->Enable_Crypto();
+                            if ($cr === true) {
 
-							if ($cr === true) {
+                                $handler->on_Accept();
 
-								$handler->on_Accept();
+                            } elseif ($cr === false) {
 
-							} else if ($cr === false) {
+                                $handler->on_Connect_Fail(ConnectionHandler::FAIL_CRYPTO);
+                                self::Free_Connection($handler);
 
-								$handler->on_Connect_Fail(ConnectionHandler::FAIL_CRYPTO);
-								self::Free_Connection($handler);
+                            }
 
-							}
+                        } elseif (!$so->connected) {
 
-						} else if (!$so->connected) {
+                            continue;
 
-							continue;
+                        }
 
-						}
+                        $data = $so->Read();
 
-						$data = $so->Read();
+                        if (($data === "") || ($data === false)) {
 
-						if (($data === "") || ($data === false)) {
+                            if ($so->Eof()) {
 
-							if ($so->Eof()) {
+                                // Disconnected socket
 
-								// Disconnected socket
+                                $handler->on_Disconnect();
+                                self::Free_Connection($handler);
 
-								$handler->on_Disconnect();
-								self::Free_Connection($handler);
+                            }
 
-							}
+                        } else {
 
-						} else {
+                            // Data available
 
-							// Data available
+                            $handler->on_Read($data);
 
-							$handler->on_Read($data);
+                        }
 
-						}
+                    } elseif ($handler instanceof DatagramHandler) {
 
-					} else if ($handler instanceof DatagramHandler) {
+                        $from = "";
+                        $data = $so->Read_From($from);
 
-						$from = "";
-						$data = $so->Read_From($from);
+                        $handler->on_Read($from, $data);
 
-						$handler->on_Read($from, $data);
+                    } elseif ($handler instanceof Listener) {
 
-					} else if ($handler instanceof Listener) {
+                        while ($fd = $so->Accept()) {
 
-						while ($fd = $so->Accept()) {
+                            // New connection accepted
 
-							// New connection accepted
+                            $sck = new Socket($fd, $so->crypto_type);
 
-							$sck = new Socket($fd, $so->crypto_type);
+                            $hnd = new $handler->handler_classname($handler->handler_options);
+                            $hnd->socket = $sck;
 
-							$hnd = new $handler->handler_classname($handler->handler_options);
-							$hnd->socket = $sck;
+                            if ($handler->forking) {
 
-							if ($handler->forking) {
+                                $hnd->on_Fork_Prepare();
 
-								$hnd->on_Fork_Prepare();
+                                if (self::Fork() === 0) {
 
-								if (self::Fork() === 0) {
+                                    $hnd->on_Fork_Done();
 
-									$hnd->on_Fork_Done();
+                                    self::$write_buffers = self::$listeners = array();
+                                    self::$connections = array($sck->id => $hnd);
+                                    self::$forked_connection = $hnd;
 
-									self::$write_buffers = self::$listeners = array();
-									self::$connections = array($sck->id => $hnd);
-									self::$forked_connection = $hnd;
+                                    self::Clear_Timers();
 
-									self::Clear_Timers();
+                                    if ($sck->Setup()) {
 
-									if ($sck->Setup()) {
+                                        $hnd->on_Accept();
 
-										$hnd->on_Accept();
+                                    }
 
-									}
+                                    $handler = $hnd = $sck = $l = $c = $wbs = $wb = $fd_lookup_r = $fd_lookup_w = false;
 
-									$handler = $hnd = $sck = $l = $c = $wbs = $wb = $fd_lookup_r = $fd_lookup_w = false;
+                                    break;
 
-									break;
+                                }
 
-								}
+                                $hnd->on_Fork_Done();
 
-								$hnd->on_Fork_Done();
+                                if (self::$nb_forked_processes >= self::$max_forked_processes) break;
 
-								if (self::$nb_forked_processes >= self::$max_forked_processes) break;
+                            } else {
 
-							} else {
+                                self::$connections[$sck->id] = $hnd;
 
-								self::$connections[$sck->id] = $hnd;
+                                if ($sck->Setup()) {
 
-								if ($sck->Setup()) {
+                                    $hnd->on_Accept();
 
-									$hnd->on_Accept();
+                                }
 
-								}
+                            }
 
-							}
+                            $sck = $hnd = NULL;
 
-							$sck = $hnd = NULL;
+                        }
 
-						}
+                    } elseif ($handler instanceof IPCSocket) {
 
-					} else if ($handler instanceof IPCSocket) {
+                        while ($ipcm = $handler->Read()) {
 
-						while ($ipcm = $handler->Read()) {
+                            if ((!$ipcq = unserialize($ipcm)) || (!is_object($o = self::$shared_objects[$ipcq["oid"]]))) continue;
 
-							if ((!$ipcq = unserialize($ipcm)) || (!is_object($o = self::$shared_objects[$ipcq["oid"]]))) continue;
+                            switch ($ipcq["action"]) {
 
-							switch ($ipcq["action"]) {
+                                case "G":
+                                $handler->Write(serialize($o->$ipcq["var"]));
+                                break;
 
-								case "G":
-								$handler->Write(serialize($o->$ipcq["var"]));
-								break;
+                                case "S":
+                                $o->$ipcq["var"] = $ipcq["val"];
+                                break;
 
-								case "S":
-								$o->$ipcq["var"] = $ipcq["val"];
-								break;
+                                case "C":
+                                SharedObject::$caller_pid = $handler->pid;
+                                $handler->Write(serialize(call_user_func_array(array($o, $ipcq["func"]), $ipcq["args"])));
+                                break;
 
-								case "C":
-								SharedObject::$caller_pid = $handler->pid;
-								$handler->Write(serialize(call_user_func_array(array($o, $ipcq["func"]), $ipcq["args"])));
-								break;
+                            }
 
-							}
+                        }
 
-						}
+                        $o = $ipcq = $ipcm = NULL;
 
-						$o = $ipcq = $ipcm = NULL;
+                    } elseif (!isset($handler)) {
 
-					} else if (!isset($handler)) {
+                        // User stream
 
-						// User stream
+                        $ret[0][] = $act_rfd;
 
-						$ret[0][] = $act_rfd;
+                    }
 
-					}
+                }
 
-				}
+                foreach ($wfd as $act_wfd) {
 
-				foreach ($wfd as $act_wfd) {
+                    $handler = $fd_lookup_w[$act_wfd];
+                    $so = $handler->socket;
 
-					$handler = $fd_lookup_w[$act_wfd];
-					$so = $handler->socket;
+                    if (!isset($handler)) {
 
-					if (!isset($handler)) {
+                        // User stream
 
-						// User stream
+                        $ret[1][] = $act_wfd;
 
-						$ret[1][] = $act_wfd;
+                    } elseif ($so->connected) {
 
-					} else if ($so->connected) {
+                        // Unblock buffered write
 
-						// Unblock buffered write
+                        if ($so->Eof()) {
 
-						if ($so->Eof()) {
+                            $handler->on_Disconnect();
+                            self::Free_Connection($handler);
 
-							$handler->on_Disconnect();
-							self::Free_Connection($handler);
+                        } else {
 
-						} else {
+                            $so->blocked = false;
 
-							$so->blocked = false;
+                        }
 
-						}
+                    } elseif ($so->pending_connect) {
 
-					} else if ($so->pending_connect) {
+                        // Pending connect
 
-						// Pending connect
+                        if ($so->Eof()) {
 
-						if ($so->Eof()) {
+                            $handler->on_Connect_Fail(ConnectionHandler::FAIL_CONNREFUSED);
+                            self::Free_Connection($handler);
 
-							$handler->on_Connect_Fail(ConnectionHandler::FAIL_CONNREFUSED);
-							self::Free_Connection($handler);
+                        } else {
 
-						} else {
+                            $so->Setup();
+                            $so->connected = true;
+                            $so->pending_connect = false;
+                            $handler->on_Connect();
 
-							$so->Setup();
-							$so->connected = true;
-							$so->pending_connect = false;
-							$handler->on_Connect();
+                        }
 
-						}
+                    }
 
-					}
+                }
 
-				}
+            }
 
-			}
+            if (self::$nb_forked_processes && !self::$child_process) while ((($pid = pcntl_wait($tmp, WNOHANG)) > 0) && self::$nb_forked_processes--) unset(self::$forked_pipes[$pid]);
 
-			if (self::$nb_forked_processes && !self::$child_process) while ((($pid = pcntl_wait($tmp, WNOHANG)) > 0) && self::$nb_forked_processes--) unset(self::$forked_pipes[$pid]);
+            if ($ret) {
+                return $ret;
 
-			if ($ret) {
+            } elseif (isset($exit_mt)) {
 
-				return $ret;
+                $exit = $exit_mt <= $t;
 
-			} else if (isset($exit_mt)) {
+            }
 
-				$exit = $exit_mt <= $t;
-
-			}
-
-		} while (!$exit);
-	}
+        } while (!$exit);
+    }
 }

@@ -36,68 +36,66 @@ use Nanoserv;
  */
 abstract class Server extends Nanoserv\HTTP\Server {
 
-	/**
-	 * Request URL
-	 * @var string
-	 */
-	protected $request_url = "";
+    /**
+     * Request URL
+     * @var string
+     */
+    protected $request_url = "";
 
-	final public function on_Request($url) {
+    final public function on_Request($url) {
 
-		$this->request_url = $url;
+        $this->request_url = $url;
 
-		$req = json_decode($this->request_content);
+        $req = json_decode($this->request_content);
 
-		$ret = array("id" => $req->id);
+        $ret = array("id" => $req->id);
 
-		if ($req === NULL) {
+        if ($req === NULL) {
 
-			$this->Set_Response_Status(400);
+            $this->Set_Response_Status(400);
 
-			switch (json_last_error()) {
+            switch (json_last_error()) {
 
-				case JSON_ERROR_DEPTH:		$ret["error"] = "The maximum stack depth has been exceeded";				break;
-				case JSON_ERROR_CTRL_CHAR:	$ret["error"] = "Control character error, possibly incorrectly encoded";	break;
-				case JSON_ERROR_SYNTAX:		$ret["error"] = "Syntax error";												break;
-				default:					$ret["error"] = "Unknown error";											break;
+                case JSON_ERROR_DEPTH:		$ret["error"] = "The maximum stack depth has been exceeded";				break;
+                case JSON_ERROR_CTRL_CHAR:	$ret["error"] = "Control character error, possibly incorrectly encoded";	break;
+                case JSON_ERROR_SYNTAX:		$ret["error"] = "Syntax error";												break;
+                default:					$ret["error"] = "Unknown error";											break;
 
-			}
+            }
 
-			return json_encode($ret);
+            return json_encode($ret);
 
-		}
+        }
 
-		try {
+        try {
 
-			$ret["result"] = $this->on_Call($req->method, $req->params);
+            $ret["result"] = $this->on_Call($req->method, $req->params);
 
-		} catch (\Exception $e) {
+        } catch (\Exception $e) {
 
-			$ret["error"] = $e->getMessage();
+            $ret["error"] = $e->getMessage();
 
-		}
+        }
 
-		if (isset($req->id)) {
+        if (isset($req->id)) {
+            return json_encode($ret);
 
-			return json_encode($ret);
+        } else {
+            return "";
 
-		} else {
+        }
 
-			return "";
+    }
 
-		}
-
-	}
-
-	/**
-	 * Event called on JSON-RPC method call
-	 *
-	 * The value returned by on_Call() will be sent back as the JSON-RPC method call response
-	 *
-	 * @param string $method
-	 * @param array $args
-	 * @return mixed
-	 */
-	abstract public function on_Call($method, $args);
+    /**
+     * Event called on JSON-RPC method call
+     *
+     * The value returned by on_Call() will be sent back as the JSON-RPC method call response
+     *
+     * @param  string $method
+     * @param  array  $args
+     * @return mixed
+     */
+    abstract public function on_Call($method, $args);
 
 }
