@@ -53,7 +53,6 @@ use Nanoserv\ClientException,
  * @since 0.9
  */
 final class Core {
-
     /**
      * nanoserv current version number
      * @var string
@@ -142,7 +141,6 @@ final class Core {
      * Class Nanoserv should not be instanciated but used statically
      */
     private function __construct() {
-
     }
 
     /**
@@ -159,13 +157,10 @@ final class Core {
      * @since 0.9
      */
     public static function New_Listener($addr, $handler_classname, $handler_options=false) {
-
         if (strtolower(strtok($addr, ":")) == "udp") {
-
             $l = self::New_Datagram_Handler($addr, $handler_classname);
 
         } else {
-
             $l = new Listener($addr, $handler_classname, $handler_options);
             self::$listeners[] = $l;
 
@@ -187,11 +182,8 @@ final class Core {
      * @since 0.9
      */
     public static function Free_Listener($l) {
-
         if ($l instanceof Listener) {
-
             foreach (self::$listeners as $k => $v) if ($v === $l) {
-
                 unset(self::$listeners[$k]);
 
                 return true;
@@ -221,13 +213,11 @@ final class Core {
      * @since 0.9
      */
     public static function New_Static_Write_Buffer(Socket $socket, $data, $callback=false) {
-
         $wb = new StaticWriteBuffer($socket, $data, $callback);
 
         $wb->Write();
 
         if ($wb->Waiting_Data()) {
-
             self::$write_buffers[$socket->id][] = $wb;
 
         }
@@ -250,13 +240,11 @@ final class Core {
      * @since 0.9
      */
     public static function New_Stream_Write_Buffer(Socket $socket, $data, $callback=false) {
-
         $wb = new StreamWriteBuffer($socket, $data, $callback);
 
         $wb->Write();
 
         if ($wb->Waiting_Data()) {
-
             self::$write_buffers[$socket->id][] = $wb;
 
         }
@@ -272,7 +260,6 @@ final class Core {
      * @since 0.9
      */
     public static function Free_Write_Buffers($sid) {
-
         unset(self::$write_buffers[$sid]);
 
     }
@@ -288,7 +275,6 @@ final class Core {
      * @since 0.9
      */
     public static function New_Connection($addr, $handler_classname, $handler_options=false) {
-
         $sck = new ClientSocket($addr);
         $h = new $handler_classname($handler_options);
 
@@ -308,7 +294,6 @@ final class Core {
      * @since 0.9
      */
     public static function Free_Connection(ConnectionHandler $h) {
-
         $so = $h->socket;
 
         unset(self::$connections[$so->id]);
@@ -331,7 +316,6 @@ final class Core {
      * @since 0.9.61
      */
     public static function New_Datagram_Handler($addr, $handler_classname) {
-
         $h = new $handler_classname($addr);
         self::$dgram_handlers[$h->socket->id] = $h;
 
@@ -347,7 +331,6 @@ final class Core {
      * @since 0.9.61
      */
     public static function Free_Datagram_Handler(DatagramHandler $h) {
-
         unset(self::$dgram_handlers[$h->socket->id]);
 
         return true;
@@ -365,7 +348,6 @@ final class Core {
      * @since 0.9
      */
     public static function New_Shared_Object($o = false) {
-
         $shr = new SharedObject($o);
 
         self::$shared_objects[$shr->_oid] = $shr;
@@ -381,7 +363,6 @@ final class Core {
      * @since 0.9
      */
     public static function Free_Shared_Object(SharedObject $o) {
-
         unset(self::$shared_objects[$o->_oid]);
 
     }
@@ -395,7 +376,6 @@ final class Core {
      * @since 0.9
      */
     public static function New_Timer($delay, $callback) {
-
         $t = new Timer(microtime(true) + $delay, $callback);
 
         self::$timers[] = $t;
@@ -412,7 +392,6 @@ final class Core {
      * @since 2.0
      */
     public static function Clear_Timers() {
-
         $ret = count(self::$timers);
 
         self::$timers = array();
@@ -431,7 +410,6 @@ final class Core {
      * @since 0.9
      */
     public static function Get_Connections($include_pending_connect=false) {
-
         $ret = array();
 
         foreach (self::$connections as $c) if ($c->socket->connected || $include_pending_connect) $ret[] = $c;
@@ -448,7 +426,6 @@ final class Core {
      * @since 0.9
      */
     public static function Get_Listeners($include_inactive=false) {
-
         $ret = array();
 
         foreach (self::$listeners as $l) if ($l->active || $include_inactive) $ret[] = $l;
@@ -465,7 +442,6 @@ final class Core {
      * @since 2.0.1
      */
     public static function Get_Timers($include_inactive=false) {
-
         $ret = array();
 
         foreach (self::$timers as $t) if ($t->active || $include_inactive) $ret[] = $t;
@@ -483,7 +459,6 @@ final class Core {
      * @since 2.0
      */
     public static function Set_Max_Children($i) {
-
         self::$max_forked_processes = $i;
 
     }
@@ -494,9 +469,7 @@ final class Core {
      * @since 2.0
      */
     public static function Flush_Write_Buffers() {
-
         while (self::$write_buffers) {
-
             self::Run(1);
 
         }
@@ -510,9 +483,7 @@ final class Core {
      * @since 0.9.63
      */
     public static function Fork() {
-
         if ($has_shared = (SharedObject::$shared_count > 0)) {
-
             list($s1, $s2) = IPCSocket::Pair();
 
         }
@@ -520,21 +491,17 @@ final class Core {
         $pid = pcntl_fork();
 
         if ($pid === 0) {
-
             self::$child_process = true;
 
             if ($has_shared) {
-
                 self::$master_pipe = $s2;
 
             }
 
         } elseif ($pid > 0) {
-
             ++self::$nb_forked_processes;
 
             if ($has_shared) {
-
                 $s1->pid = $pid;
                 self::$forked_pipes[$pid] = $s1;
 
@@ -563,40 +530,33 @@ final class Core {
      * @since 0.9
      */
     public static function Run($time = NULL, array $user_streams = NULL) {
-
         $tmp = 0;
 
         $ret = array();
 
         if (isset($time)) {
-
             if ($time < 0) {
-
                 $poll_max_wait = -$time;
                 $exit_mt = microtime(true) - $time;
 
             } else {
-
                 $poll_max_wait = $time;
                 $exit = true;
 
             }
 
         } else {
-
             $poll_max_wait = 60;
             $exit = false;
 
         }
 
         do {
-
             $t = microtime(true);
 
             // Timers
 
             if (self::$timers_updated) {
-
                 usort(self::$timers, function(Timer $a, Timer $b) { return $a->microtime > $b->microtime; });
                 self::$timers_updated = false;
 
@@ -605,14 +565,11 @@ final class Core {
             $next_timer_md = NULL;
 
             if (self::$timers) foreach (self::$timers as $k => $tmr) {
-
                 if ($tmr->microtime > $t) {
-
                     $next_timer_md = $tmr->microtime - $t;
                     break;
 
                 } elseif ($tmr->active) {
-
                     $tmr->Deactivate();
                     call_user_func($tmr->callback);
 
@@ -623,15 +580,12 @@ final class Core {
             }
 
             if (self::$timers_updated) {
-
                 $t = microtime(true);
 
                 usort(self::$timers, function(Timer $a, Timer $b) { return $a->microtime > $b->microtime; });
 
                 foreach (self::$timers as $tmr) {
-
                     if ($tmr->microtime > $t) {
-
                         $next_timer_md = $tmr->microtime - $t;
                         break;
 
@@ -646,17 +600,13 @@ final class Core {
             // Write buffers to non blocked sockets
 
             foreach (self::$write_buffers as $write_buffers) {
-
                 if (!$write_buffers || $write_buffers[0]->socket->blocked || !$write_buffers[0]->socket->connected) continue;
 
                 foreach ($write_buffers as $wb) {
-
                     while ($wb->Waiting_Data() && !$wb->socket->blocked) {
-
                         $wb->Write();
 
                         if (!$wb->Waiting_Data()) {
-
                             array_shift(self::$write_buffers[$wb->socket->id]);
                             if (!self::$write_buffers[$wb->socket->id]) self::Free_Write_Buffers($wb->socket->id);
 
@@ -677,7 +627,6 @@ final class Core {
             $fd_lookup_r = $fd_lookup_w = $rfd = $wfd = $efd = array();
 
             foreach (self::$listeners as $l) if (($l->active) && ((!$l->forking) || (self::$nb_forked_processes <= self::$max_forked_processes))) {
-
                 $fd = $l->socket->fd;
                 $rfd[] = $fd;
                 $fd_lookup_r[(int) $fd] = $l;
@@ -687,24 +636,19 @@ final class Core {
             $next_conn_timeout_mt = NULL;
 
             foreach (self::$connections as $c) {
-
                 $so = $c->socket;
 
                 if ($so->pending_crypto) {
-
                     $cr = $so->Enable_Crypto();
 
                     if ($cr === true) {
-
                         $c->on_Accept();
 
                     } elseif ($cr === false) {
-
                         $c->on_Connect_Fail(ConnectionHandler::FAIL_CRYPTO);
                         self::Free_Connection($c);
 
                     } else {
-
                         $fd = $so->fd;
                         $rfd[] = $fd;
                         $fd_lookup_r[(int) $fd] = $c;
@@ -712,9 +656,7 @@ final class Core {
                     }
 
                 } elseif ($so->connected) {
-
                     if (!$so->block_reads) {
-
                         $fd = $so->fd;
                         $rfd[] = $fd;
                         $fd_lookup_r[(int) $fd] = $c;
@@ -722,18 +664,15 @@ final class Core {
                     }
 
                 } elseif ($so->connect_timeout < $t) {
-
                     $c->on_Connect_Fail(ConnectionHandler::FAIL_TIMEOUT);
                     self::Free_Connection($c);
 
                 } elseif ($so->pending_connect) {
-
                     $fd = $so->fd;
                     $wfd[] = $fd;
                     $fd_lookup_w[(int) $fd] = $c;
 
                     if (!$next_conn_timeout_mt || ($sc->connect_timeout < $next_conn_timeout_mt)) {
-
                         $next_conn_timeout_mt = $sc->connect_timeout;
 
                     }
@@ -743,7 +682,6 @@ final class Core {
             }
 
             if (self::$dgram_handlers) foreach (self::$dgram_handlers as $l) if ($l->active) {
-
                 $fd = $l->socket->fd;
                 $rfd[] = $fd;
                 $fd_lookup_r[(int) $fd] = $l;
@@ -751,7 +689,6 @@ final class Core {
             }
 
             foreach (self::$write_buffers as $wbs) if ($wbs[0]->socket->blocked) {
-
                 $fd = $wbs[0]->socket->fd;
                 $wfd[] = $fd;
                 $fd_lookup_w[(int) $fd] = self::$connections[$wbs[0]->socket->id];
@@ -759,7 +696,6 @@ final class Core {
             }
 
             if (self::$forked_pipes) foreach (self::$forked_pipes as $fp) {
-
                 $fd = $fp->fd;
                 $rfd[] = $fd;
                 $fd_lookup_r[(int) $fd] = $fp;
@@ -767,7 +703,6 @@ final class Core {
             }
 
             if (isset($user_streams)) {
-
                 foreach ((array) $user_streams[0] as $tmp_r) $rfd[] = $tmp_r;
                 foreach ((array) $user_streams[1] as $tmp_w) $wfd[] = $tmp_w;
 
@@ -786,31 +721,24 @@ final class Core {
             $tv_usec = ($wait_md - $tv_sec) * 1000000;
 
             if (($rfd || $wfd) && (@stream_select($rfd, $wfd, $efd, $tv_sec, $tv_usec))) {
-
                 foreach ($rfd as $act_rfd) {
-
                     $handler = $fd_lookup_r[(int) $act_rfd];
                     $so = $handler->socket;
 
                     if ($handler instanceof ConnectionHandler) {
-
                         if ($so->pending_crypto) {
-
                             $cr = $so->Enable_Crypto();
 
                             if ($cr === true) {
-
                                 $handler->on_Accept();
 
                             } elseif ($cr === false) {
-
                                 $handler->on_Connect_Fail(ConnectionHandler::FAIL_CRYPTO);
                                 self::Free_Connection($handler);
 
                             }
 
                         } elseif (!$so->connected) {
-
                             continue;
 
                         }
@@ -818,9 +746,7 @@ final class Core {
                         $data = $so->Read();
 
                         if (($data === "") || ($data === false)) {
-
                             if ($so->Eof()) {
-
                                 // Disconnected socket
 
                                 $handler->on_Disconnect();
@@ -829,7 +755,6 @@ final class Core {
                             }
 
                         } else {
-
                             // Data available
 
                             $handler->on_Read($data);
@@ -837,16 +762,13 @@ final class Core {
                         }
 
                     } elseif ($handler instanceof DatagramHandler) {
-
                         $from = "";
                         $data = $so->Read_From($from);
 
                         $handler->on_Read($from, $data);
 
                     } elseif ($handler instanceof Listener) {
-
                         while ($fd = $so->Accept()) {
-
                             // New connection accepted
 
                             $sck = new Socket($fd, $so->crypto_type);
@@ -855,11 +777,9 @@ final class Core {
                             $hnd->socket = $sck;
 
                             if ($handler->forking) {
-
                                 $hnd->on_Fork_Prepare();
 
                                 if (self::Fork() === 0) {
-
                                     $hnd->on_Fork_Done();
 
                                     self::$write_buffers = self::$listeners = array();
@@ -869,7 +789,6 @@ final class Core {
                                     self::Clear_Timers();
 
                                     if ($sck->Setup()) {
-
                                         $hnd->on_Accept();
 
                                     }
@@ -885,11 +804,9 @@ final class Core {
                                 if (self::$nb_forked_processes >= self::$max_forked_processes) break;
 
                             } else {
-
                                 self::$connections[$sck->id] = $hnd;
 
                                 if ($sck->Setup()) {
-
                                     $hnd->on_Accept();
 
                                 }
@@ -901,13 +818,10 @@ final class Core {
                         }
 
                     } elseif ($handler instanceof IPCSocket) {
-
                         while ($ipcm = $handler->Read()) {
-
                             if ((!$ipcq = unserialize($ipcm)) || (!is_object($o = self::$shared_objects[$ipcq["oid"]]))) continue;
 
                             switch ($ipcq["action"]) {
-
                                 case "G":
                                 $handler->Write(serialize($o->$ipcq["var"]));
                                 break;
@@ -928,7 +842,6 @@ final class Core {
                         $o = $ipcq = $ipcm = NULL;
 
                     } elseif (!isset($handler)) {
-
                         // User stream
 
                         $ret[0][] = $act_rfd;
@@ -938,42 +851,34 @@ final class Core {
                 }
 
                 foreach ($wfd as $act_wfd) {
-
                     $handler = $fd_lookup_w[$act_wfd];
                     $so = $handler->socket;
 
                     if (!isset($handler)) {
-
                         // User stream
 
                         $ret[1][] = $act_wfd;
 
                     } elseif ($so->connected) {
-
                         // Unblock buffered write
 
                         if ($so->Eof()) {
-
                             $handler->on_Disconnect();
                             self::Free_Connection($handler);
 
                         } else {
-
                             $so->blocked = false;
 
                         }
 
                     } elseif ($so->pending_connect) {
-
                         // Pending connect
 
                         if ($so->Eof()) {
-
                             $handler->on_Connect_Fail(ConnectionHandler::FAIL_CONNREFUSED);
                             self::Free_Connection($handler);
 
                         } else {
-
                             $so->Setup();
                             $so->connected = true;
                             $so->pending_connect = false;
@@ -993,7 +898,6 @@ final class Core {
                 return $ret;
 
             } elseif (isset($exit_mt)) {
-
                 $exit = $exit_mt <= $t;
 
             }

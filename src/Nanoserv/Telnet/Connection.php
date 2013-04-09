@@ -35,7 +35,6 @@ use Nanoserv\ConnectionHandler;
  * @subpackage Handlers
  */
 abstract class Connection extends ConnectionHandler {
-
     const IAC = "\xff";
 
     const TYPE_WILL = "\xfb";
@@ -54,13 +53,11 @@ abstract class Connection extends ConnectionHandler {
     public $remote_options = array();
 
     private function Set_Remote_Option($type, $option) {
-
         $this->remote_options[] = array($type, $option);
 
     }
 
     public function Send_Option($type, $option) {
-
         $this->Raw_Write(self::IAC . $type . $option);
 
     }
@@ -71,7 +68,6 @@ abstract class Connection extends ConnectionHandler {
     }
 
     public function Write($data, $callback=false) {
-
         $data = str_replace(self::IAC, self::IAC . self::IAC, $data);
 
         return parent::Write($data, $callback);
@@ -79,18 +75,13 @@ abstract class Connection extends ConnectionHandler {
     }
 
     public function on_Read($data) {
-
         if (strpos($data, self::IAC) !== false) {
-
             $tmp = "";
             $len = strlen($data);
 
             for ($a = 0; $a < $len; $a++) {
-
                 if ($data[$a] === self::IAC) {
-
                     switch ($data[$a + 1]) {
-
                         case self::TYPE_WILL:
                         case self::TYPE_WONT:
                         case self::TYPE_DO:
@@ -107,7 +98,6 @@ abstract class Connection extends ConnectionHandler {
                     }
 
                 } else {
-
                     $tmp .= $data[$a];
 
                 }
@@ -115,7 +105,6 @@ abstract class Connection extends ConnectionHandler {
             }
 
             if (strlen($tmp)) {
-
                 $data = $tmp;
 
             } else {

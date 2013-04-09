@@ -10,7 +10,6 @@ namespace Nanoserv;
  * @since 0.9
  */
 class ServerSocket extends namespace\Socket {
-
     /**
      * Listen address (format is 'proto://addr:port')
      * @var string
@@ -27,7 +26,6 @@ class ServerSocket extends namespace\Socket {
      * ServerSocket constructor
      */
     public function __construct($addr) {
-
         parent::__construct();
 
         $this->address = $addr;
@@ -35,15 +33,12 @@ class ServerSocket extends namespace\Socket {
         $proto = strtolower(strtok($addr, ":"));
 
         if (($proto === "udp") || ($proto === "unix")) {
-
             $this->real_address = $addr;
 
         } else {
-
             $this->real_address = "tcp:" . strtok("");
 
             if ($proto !== "tcp") switch ($proto) {
-
                 case "ssl":		$this->crypto_type = STREAM_CRYPTO_METHOD_SSLv23_SERVER;	break;
                 case "tls":		$this->crypto_type = STREAM_CRYPTO_METHOD_TLS_SERVER;		break;
                 case "sslv2":	$this->crypto_type = STREAM_CRYPTO_METHOD_SSLv2_SERVER;		break;
@@ -52,11 +47,9 @@ class ServerSocket extends namespace\Socket {
                 default:
 
                 if (defined($cname = "STREAM_CRYPTO_METHOD_".strtoupper($proto)."_SERVER")) {
-
                     $this->crypto_type = constant($cname);
 
                 } else {
-
                     throw new ServerException("unknown transport/crypto type '{$proto}'");
 
                 }
@@ -74,13 +67,11 @@ class ServerSocket extends namespace\Socket {
      * @since 0.9
      */
     public function Listen($bind_only = false) {
-
         $errno = $errstr = false;
 
         $this->fd = @stream_socket_server($this->real_address, $errno, $errstr, STREAM_SERVER_BIND | ($bind_only ? 0 : STREAM_SERVER_LISTEN), $this->context);
 
         if ($this->fd === false) {
-
             throw new ServerException("cannot listen to {$this->real_address}: {$errstr}", $errno, $this->real_address);
 
         }

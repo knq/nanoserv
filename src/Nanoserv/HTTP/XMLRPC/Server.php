@@ -35,7 +35,6 @@ use Nanoserv;
  * @subpackage Handlers
  */
 abstract class Server extends Nanoserv\HTTP\Server {
-
     /**
      * Request URL
      * @var string
@@ -49,41 +48,31 @@ abstract class Server extends Nanoserv\HTTP\Server {
      * @return string
      */
     protected static function Variable_To_XML_String($var) {
-
         $ret = "<value>";
 
         if (is_int($var)) {
-
             $ret .= "<i4>".$var."</i4>";
 
         } elseif (is_bool($var)) {
-
             $ret .= "<boolean>".(int) $var."</boolean>";
 
         } elseif (is_string($var)) {
-
             if (htmlentities($var) != $var) {
-
                 $ret .= "<base64>".base64_encode($var)."</base64>";
 
             } else {
-
                 $ret .= "<string>".$var."</string>";
 
             }
 
         } elseif (is_float($var)) {
-
             $ret .= "<double>".$var."</double>";
 
         } elseif (is_array($var)) {
-
             if (self::Is_Assoc($var)) {
-
                 $ret .= "<struct>";
 
                 foreach ($var as $k=>$v) {
-
                     $ret .= "<member>";
                     $ret .= "<name>".$k."</name>";
                     $ret .= self::Variable_To_XML_String($v);
@@ -94,7 +83,6 @@ abstract class Server extends Nanoserv\HTTP\Server {
                 $ret .= "</struct>";
 
             } else {
-
                 $ret .= "<array><data>";
 
                 foreach ($var as $v) $ret .= self::Variable_To_XML_String($v);
@@ -129,22 +117,18 @@ abstract class Server extends Nanoserv\HTTP\Server {
      * @return mixed
      */
     protected static function XML_Value_To_Variable(\SimpleXMLElement $xml) {
-
         foreach ($xml as $type => $xvalue) break;
 
         if (isset($type)) {
-
             $value = (string) $xvalue;
 
         } else {
-
             $type = "string";
             $value = (string) $xml;
 
         }
 
         switch (strtoupper($type)) {
-
             case "I4":
             case "INT":
             $value = (int) $value;
@@ -187,21 +171,16 @@ abstract class Server extends Nanoserv\HTTP\Server {
      * @return array
      */
     protected static function XML_Struct_To_Array(\SimpleXMLElement $xml) {
-
         $ret = array();
 
         foreach ($xml as $xtype=>$xelem) {
-
             switch (strtoupper($xtype)) {
-
                 case "MEMBER":
 
                 $mname = $mval = false;
 
                 foreach ($xelem as $mprop=>$xval) {
-
                     switch (strtoupper($mprop)) {
-
                         case "NAME":
                         $mname = (string) $xval;
                         break;
@@ -237,11 +216,9 @@ abstract class Server extends Nanoserv\HTTP\Server {
      * @return array
      */
     protected static function XML_Params_To_Array(\SimpleXMLElement $xml) {
-
         $ret = array();
 
         foreach ($xml as $topname=>$xparam) {
-
             if (strtoupper($topname) != "PARAM") continue;
 
             foreach ($xparam as $xvalue) $ret[] = self::XML_Value_To_Variable($xvalue);
@@ -269,13 +246,11 @@ abstract class Server extends Nanoserv\HTTP\Server {
     }
 
     final public function on_Request($url) {
-
         $this->request_url = $url;
 
         $xreq = @simplexml_load_string($this->request_content);
 
         if ($xreq === false) {
-
             $this->Set_Response_Status(400);
 
             return "";
@@ -283,9 +258,7 @@ abstract class Server extends Nanoserv\HTTP\Server {
         }
 
         foreach ($xreq as $name => $xtopelem) {
-
             switch (strtoupper($name)) {
-
                 case "METHODNAME":
                 $method = (string) $xtopelem;
                 break;

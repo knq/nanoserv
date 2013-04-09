@@ -35,7 +35,6 @@ use Nanoserv;
  * @subpackage Handlers
  */
 abstract class Server extends Nanoserv\HTTP\Server {
-
     /**
      * Request URL
      * @var string
@@ -43,7 +42,6 @@ abstract class Server extends Nanoserv\HTTP\Server {
     protected $request_url = "";
 
     final public function on_Request($url) {
-
         $this->request_url = $url;
 
         $req = json_decode($this->request_content);
@@ -51,11 +49,9 @@ abstract class Server extends Nanoserv\HTTP\Server {
         $ret = array("id" => $req->id);
 
         if ($req === NULL) {
-
             $this->Set_Response_Status(400);
 
             switch (json_last_error()) {
-
                 case JSON_ERROR_DEPTH:		$ret["error"] = "The maximum stack depth has been exceeded";				break;
                 case JSON_ERROR_CTRL_CHAR:	$ret["error"] = "Control character error, possibly incorrectly encoded";	break;
                 case JSON_ERROR_SYNTAX:		$ret["error"] = "Syntax error";												break;
@@ -68,11 +64,9 @@ abstract class Server extends Nanoserv\HTTP\Server {
         }
 
         try {
-
             $ret["result"] = $this->on_Call($req->method, $req->params);
 
         } catch (\Exception $e) {
-
             $ret["error"] = $e->getMessage();
 
         }

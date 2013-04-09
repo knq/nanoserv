@@ -10,7 +10,6 @@ namespace Nanoserv;
  * @since 0.9
  */
 class IPCSocket extends namespace\Socket {
-
     /**
      * Maximum size of inter process communication packets
      * @var int
@@ -30,7 +29,6 @@ class IPCSocket extends namespace\Socket {
      * @param int      $pid
      */
     public function __construct($fd, $pid=false) {
-
         parent::__construct($fd);
 
         $this->Set_Write_Buffer(self::IPC_MAX_PACKET_SIZE);
@@ -62,7 +60,6 @@ class IPCSocket extends namespace\Socket {
      * @since 0.9
      */
     public static function Pair($domain = STREAM_PF_UNIX, $type = STREAM_SOCK_DGRAM, $proto = 0) {
-
         list($s1, $s2) = stream_socket_pair($domain, $type, $proto);
 
         return array(new IPCSocket($s1), new IPCSocket($s2));
@@ -78,7 +75,6 @@ class IPCSocket extends namespace\Socket {
      * @since 0.9
      */
     public function Ask_Master($request, $need_response = true) {
-
         $this->Write(serialize($request));
 
         if (!$need_response) return;

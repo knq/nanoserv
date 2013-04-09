@@ -10,7 +10,6 @@ namespace Nanoserv;
  * @since 0.9
  */
 abstract class ConnectionHandler extends namespace\Handler {
-
     /**#@+
      * Cause of connection failure
      * @var int
@@ -53,13 +52,10 @@ abstract class ConnectionHandler extends namespace\Handler {
      * @since 0.9
      */
     public function Connect($timeout=false) {
-
         try {
-
             $this->socket->Connect($timeout);
 
         } catch (ClientException $e) {
-
             Core::Free_Connection($this);
 
             throw new ClientException($e->getMessage(), $e->getCode(), $e->addr, $this);
@@ -72,7 +68,6 @@ abstract class ConnectionHandler extends namespace\Handler {
      * Disconnect
      */
     public function Disconnect() {
-
         $this->socket->Close();
 
         Core::Free_Connection($this);
@@ -84,7 +79,6 @@ abstract class ConnectionHandler extends namespace\Handler {
      * @since 0.9
      */
     public function on_Accept() {
-
     }
 
     /**
@@ -92,7 +86,6 @@ abstract class ConnectionHandler extends namespace\Handler {
      * @since 0.9
      */
     public function on_Connect() {
-
     }
 
     /**
@@ -102,7 +95,6 @@ abstract class ConnectionHandler extends namespace\Handler {
      * @since 0.9
      */
     public function on_Connect_Fail($failcode) {
-
     }
 
     /**
@@ -110,7 +102,6 @@ abstract class ConnectionHandler extends namespace\Handler {
      * @since 0.9
      */
     public function on_Disconnect() {
-
     }
 
     /**
@@ -120,7 +111,6 @@ abstract class ConnectionHandler extends namespace\Handler {
      * @since 0.9
      */
     public function on_Read($data) {
-
     }
 
     /**
@@ -129,7 +119,6 @@ abstract class ConnectionHandler extends namespace\Handler {
      * @since 2.0
      */
     public function on_Fork_Prepare() {
-
     }
 
     /**
@@ -138,7 +127,6 @@ abstract class ConnectionHandler extends namespace\Handler {
      * @since 2.0
      */
     public function on_Fork_Done() {
-
     }
 
 }

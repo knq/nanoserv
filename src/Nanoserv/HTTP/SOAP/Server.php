@@ -41,7 +41,6 @@ require_once 'nanoserv/handlers/HTTP/Server.php';
  * @since 1.0.2
  */
 abstract class Server extends Nanoserv\HTTP\Server {
-
     /**
      * Request URL
      * @var string
@@ -74,9 +73,7 @@ abstract class Server extends Nanoserv\HTTP\Server {
      * @param array $options
      */
     public function __construct($options) {
-
         if (isset($options["hostname"])) {
-
             $this->hostname = $options["hostname"];
 
         }
@@ -101,13 +98,10 @@ abstract class Server extends Nanoserv\HTTP\Server {
      * @return string
      */
     protected function Variable_To_SOAP_String($var, $key=false) {
-
         if (is_array($var)) {
-
             $ret = "";
 
             foreach ($var as $k => $v) {
-
                 if (is_numeric($k) && ($key !== false)) $k = $key . "_member";
 
                 $ret .= "<{$k}>" . $this->Variable_To_SOAP_String($v, $k) . "</{$k}>";
@@ -130,7 +124,6 @@ abstract class Server extends Nanoserv\HTTP\Server {
      * @return string
      */
     protected function SOAP_Add_Response_Envelope($result) {
-
         $this->Set_Content_Type("text/xml");
 
         return "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<SOAP-ENV:Envelope xmlns:SOAP-ENV=\"http://schemas.xmlsoap.org/soap/envelope/\" SOAP-ENV:encodingStyle=\"http://schemas.xmlsoap.org/soap/encoding/\"><SOAP-ENV:Body>{$result}</SOAP-ENV:Body></SOAP-ENV:Envelope>";
@@ -145,7 +138,6 @@ abstract class Server extends Nanoserv\HTTP\Server {
      * @return string
      */
     protected function Fault($string, $code="Server") {
-
         unset($this->method_name);
 
         return $this->SOAP_Add_Response_Envelope("<SOAP-ENV:Fault><faultcode>SOAP-ENV:{$code}</faultcode><faultstring>{$string}</faultstring></SOAP-ENV:Fault>");
@@ -158,15 +150,12 @@ abstract class Server extends Nanoserv\HTTP\Server {
      * @return string
      */
     protected function Get_Base_Href() {
-
         $ret = "http://";
 
         if ($this->hostname) {
-
             $ret .= $this->hostname;
 
             if (substr($sn = $this->socket->Get_Name(), -3) !== ":80") {
-
                 strtok($sn, ":");
 
                 $ret .= ":" . strtok("");
@@ -174,15 +163,12 @@ abstract class Server extends Nanoserv\HTTP\Server {
             }
 
         } elseif (isset($this->request_headers["HOST"])) {
-
             $ret .= $this->request_headers["HOST"];
 
         } else {
-
             $ret .= php_uname("n");
 
             if (substr($sn = $this->socket->Get_Name(), -3) !== ":80") {
-
                 strtok($sn, ":");
 
                 $ret .= ":" . strtok("");
@@ -201,7 +187,6 @@ abstract class Server extends Nanoserv\HTTP\Server {
      * @return string
      */
     public function Get_WSDL() {
-
         $classname = get_class($this);
 
         $base_href = $this->Get_Base_Href();
@@ -216,7 +201,6 @@ abstract class Server extends Nanoserv\HTTP\Server {
         $i = 0;
 
         foreach (array_keys($this->exports) as $mname) {
-
             $ret .= "             xmlns:xsd".(++$i)."=\"urn:nssoap.{$mname}_d\"\n";
 
         }
@@ -226,7 +210,6 @@ abstract class Server extends Nanoserv\HTTP\Server {
         $i = 0;
 
         foreach (array_keys($this->exports) as $mname) {
-
             $ret .= "<import namespace=\"urn:nssoap.{$mname}_d\" location=\"{$base_href}/{$mname}/xsd\" />\n\n";
 
             $ret .= "<message name=\"{$mname}\">\n";
@@ -274,7 +257,6 @@ abstract class Server extends Nanoserv\HTTP\Server {
      * @return string
      */
     public function Get_XSD($method) {
-
         $classname = get_class($this);
 
         $base_href = $this->Get_Base_Href();
@@ -293,11 +275,9 @@ abstract class Server extends Nanoserv\HTTP\Server {
         $ret .= "</xs:element>\n\n";
 
         foreach ($this->exports[$method] as $param) {
-
             $ret .= "<xs:element name=\"{$param['name']}\">\n";
 
             if ($ptype = $param["type"]) {
-
                 $ret .= "    <xs:simpleType>\n";
                 $ret .= "        <xs:restriction base=\"xs:{$ptype}\" />\n";
                 $ret .= "    </xs:simpleType>\n";
@@ -315,15 +295,12 @@ abstract class Server extends Nanoserv\HTTP\Server {
     }
 
     final public function on_Request($url) {
-
         $this->request_url = $url;
 
         $purl = explode("/", trim($url, "/"));
 
         if (isset($this->exports[$umethod = $purl[0]])) {
-
             if ((!isset($purl[1])) || ($purl[1] === "call")) {
-
                 // Method call
 
                 $x = @simplexml_load_string($this->request_content, NULL, 0, "http://schemas.xmlsoap.org/soap/envelope/");
@@ -331,11 +308,9 @@ abstract class Server extends Nanoserv\HTTP\Server {
                 if ($x === false) return $this->Fault("unable to decode XML request");
 
                 if ($x->Body) {
-
                     $xdata = $x->Body->children("urn:nssoap." . $umethod . "_d");
 
                 } else {
-
                     $xdata = $x->children('http://schemas.xmlsoap.org/soap/envelope/')->Body;
 
                 }
@@ -349,23 +324,18 @@ abstract class Server extends Nanoserv\HTTP\Server {
                 if ($method !== $umethod) return $this->Fault("ambiguous method call ({$method} != {$umethod})");
 
                 foreach ($xargs as $k => $xv) {
-
                     $v = (string) $xv;
 
                     if (is_numeric($v) && ($v{0} !== "0")) {
-
                         if ((int) $v == (float) $v) {
-
                             $args[$k] = (int) $v;
 
                         } else {
-
                             $args[$k] = (float) $v;
 
                         }
 
                     } else {
-
                         $args[$k] = $v;
 
                     }
@@ -373,17 +343,13 @@ abstract class Server extends Nanoserv\HTTP\Server {
                 }
 
                 if ($method) {
-
                     if ($eargs = $this->exports[$method]) {
-
                         $apos = 0;
 
                         $cargs = array();
 
                         foreach ($eargs as $earg) {
-
                             foreach ($args as $k => $v) if ($earg["name"] === $k) {
-
                                 $cargs[$apos] = $v;
 
                                 break;
@@ -397,7 +363,6 @@ abstract class Server extends Nanoserv\HTTP\Server {
                         $this->method_name = $method;
 
                         try {
-
                             $ret = $this->on_Call($method, $cargs);
 
                         } catch (Exception $e) {
@@ -406,14 +371,12 @@ abstract class Server extends Nanoserv\HTTP\Server {
                         }
 
                     } else {
-
                         // Fault
                         return $this->Fault("undefined method");
 
                     }
 
                 } else {
-
                     // Fault
                     return $this->Fault("could not find request block");
 
@@ -424,7 +387,6 @@ abstract class Server extends Nanoserv\HTTP\Server {
                 return $this->SOAP_Add_Response_Envelope("<{$method}_Response>".$this->Variable_To_SOAP_String($ret)."</{$method}_Response>");
 
             } elseif ($purl[1] === "xsd") {
-
                 // Export XSD
 
                 $this->Set_Content_Type("text/xml");
@@ -432,14 +394,12 @@ abstract class Server extends Nanoserv\HTTP\Server {
                 return $this->Get_XSD($purl[0]);
 
             } else {
-
                 // Fault
                 return $this->Fault("incorrect url");
 
             }
 
         } elseif (($purl[0] === "wsdl") || ($purl[0] === "")) {
-
             // Export WSDL
 
             $this->Set_Content_Type("text/xml");
@@ -447,7 +407,6 @@ abstract class Server extends Nanoserv\HTTP\Server {
             return $this->Get_WSDL();
 
         } else {
-
             // Fault
 
             $this->Set_Response_Status(403);

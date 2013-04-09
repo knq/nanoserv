@@ -33,7 +33,6 @@ namespace Nanoserv;
  * @subpackage Handlers
  */
 abstract class LineInputConnection extends namespace\ConnectionHandler {
-
     /**
      * Maximum line length
      */
@@ -51,11 +50,9 @@ abstract class LineInputConnection extends namespace\ConnectionHandler {
     private $line_buffer = "";
 
     final public function on_Read($data) {
-
         $this->line_buffer .= $data;
 
         while (($p = strrpos($this->line_buffer, self::EOL_SEPARATOR)) !== false) {
-
             $lines = explode(self::EOL_SEPARATOR, substr($this->line_buffer, 0, $p));
             $this->line_buffer = substr($this->line_buffer, $p + strlen(self::EOL_SEPARATOR));
 
@@ -64,7 +61,6 @@ abstract class LineInputConnection extends namespace\ConnectionHandler {
         }
 
         if (strlen($this->line_buffer) > self::MAX_LENGTH) {
-
             $this->on_Read_Line($this->line_buffer);
             $this->line_buffer = "";
 

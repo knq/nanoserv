@@ -10,7 +10,6 @@ namespace Nanoserv;
  * @since 0.9
  */
 class Listener {
-
     /**
      * Attached socket
      * @var ServerSocket
@@ -53,7 +52,6 @@ class Listener {
      * @param mixed  $handler_options
      */
     public function __construct($addr, $handler_classname, $handler_options=false, $forking=false) {
-
         $this->socket = new ServerSocket($addr);
         $this->handler_classname = $handler_classname;
         $this->handler_options = $handler_options;
@@ -83,7 +81,6 @@ class Listener {
      * @since 0.9
      */
     public function Set_Forking($forking=true) {
-
         if ($forking && !is_callable("pcntl_fork")) return false;
 
         $this->forking = $forking;
@@ -99,14 +96,11 @@ class Listener {
      * @since 0.9
      */
     public function Activate() {
-
         try {
-
             if ($ret = $this->socket->Listen()) $this->active = true;
             return $ret;
 
         } catch (ServerException $e) {
-
             throw new ServerException($e->getMessage(), $e->getCode(), $e->addr, $this);
 
         }
@@ -118,7 +112,6 @@ class Listener {
      * @since 0.9
      */
     public function Deactivate() {
-
         $this->socket->Close();
         $this->active = false;
 
@@ -128,7 +121,6 @@ class Listener {
      * Listener destructor
      */
     public function __destruct() {
-
         $this->Deactivate();
 
     }

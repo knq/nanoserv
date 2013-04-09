@@ -10,7 +10,6 @@ namespace Nanoserv;
  * @since 0.9
  */
 class Socket {
-
     /**
      * Maximum number of bytes read by Read()
      * @var int
@@ -89,13 +88,10 @@ class Socket {
      * @param resource $fd
      */
     public function __construct($fd = false, $crypto_type = false) {
-
         if ($fd === false) {
-
             $this->context = stream_context_create();
 
         } else {
-
             $this->fd = $fd;
             $this->connected = true;
             $this->Set_Blocking(false);
@@ -116,7 +112,6 @@ class Socket {
      * @since 0.9
      */
     public function Get_Options() {
-
         if ($this->fd) {
             return stream_context_get_options($this->fd);
 
@@ -137,7 +132,6 @@ class Socket {
      * @since 0.9
      */
     public function Set_Option($wrapper, $opt, $val) {
-
         if ($this->fd) {
             return stream_context_set_option($this->fd, $wrapper, $opt, $val);
 
@@ -182,7 +176,6 @@ class Socket {
      * @since 2.0.3
      */
     public function Block_Reads($block) {
-
         $ret = $this->block_reads;
 
         $this->block_reads = $block;
@@ -212,7 +205,6 @@ class Socket {
      * @since 0.9
      */
     public function Enable_Crypto($enable = true, $type = false) {
-
         if ($type) $this->crypto_type = $type;
 
         $ret = @stream_socket_enable_crypto($this->fd, $enable, $this->crypto_type);
@@ -230,7 +222,6 @@ class Socket {
      * @since 0.9
      */
     public function Setup() {
-
         if (isset($this->crypto_type)) return $this->Enable_Crypto();
         return true;
 
@@ -293,7 +284,6 @@ class Socket {
      * @since 0.9
      */
     public function Write($data) {
-
         $nb = fwrite($this->fd, $data);
 
         if (isset($data[$nb])) $this->blocked = true;
@@ -336,7 +326,6 @@ class Socket {
      * @since 0.9
      */
     public function Eof() {
-
         $fd = $this->fd;
 
         if (!is_resource($fd)) return true;
@@ -352,7 +341,6 @@ class Socket {
      * @since 0.9
      */
     public function Close() {
-
         @fclose($this->fd);
 
         $this->connected = $this->pending_connect = false;
@@ -363,7 +351,6 @@ class Socket {
      * Socket destructor
      */
     public function __destruct() {
-
         Core::Free_Write_Buffers($this->id);
 
         $this->Close();

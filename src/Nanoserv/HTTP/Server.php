@@ -35,7 +35,6 @@ use Nanoserv;
  * @subpackage Handlers
  */
 abstract class Server extends Nanoserv\ConnectionHandler {
-
     /**
      * Server string
      */
@@ -152,37 +151,29 @@ abstract class Server extends Nanoserv\ConnectionHandler {
     private $response_status = 200;
 
     public function __construct() {
-
         $this->response_content_type = static::DEFAULT_CONTENT_TYPE;
 
     }
 
     protected function Handle_Request($url) {
-
         $this->Send_Response($this->on_Request($url));
 
     }
 
     final public function on_Read($data) {
-
         $this->request_buffer .= $data;
 
         while ($this->request_buffer) {
-
             if (($p = strpos($this->request_buffer, "\r\n\r\n")) !== false) {
-
                 $hdrs = substr($this->request_buffer, 0, $p);
                 $cnt = substr($this->request_buffer, $p + 4);
 
             } elseif (($p = strpos($this->request_buffer, "\n\n")) !== false) {
-
                 $hdrs = substr($this->request_buffer, 0, $p);
                 $cnt = substr($this->request_buffer, $p + 2);
 
             } else {
-
                 if (isset($this->request_buffer[static::MAX_REQUEST_LENGTH])) {
-
                     $this->Set_Response_Status(414);
                     $this->Send_Response("Request too large");
 
@@ -203,7 +194,6 @@ abstract class Server extends Nanoserv\ConnectionHandler {
             $tmp = array();
 
             foreach ($hdrs as $hdr) {
-
                 $k = strtoupper(strtok($hdr, ":"));
                 $tmp[$k] = trim(strtok(""));
 
@@ -212,9 +202,7 @@ abstract class Server extends Nanoserv\ConnectionHandler {
             $this->request_headers = $tmp;
 
             if ((isset($this->request_headers["CONTENT-LENGTH"])) && ($cl = $this->request_headers["CONTENT-LENGTH"])) {
-
                 if ($cl > static::MAX_REQUEST_LENGTH) {
-
                     $this->Set_Response_Status(413);
                     $this->Send_Response("Request too large");
 
@@ -227,19 +215,16 @@ abstract class Server extends Nanoserv\ConnectionHandler {
                 $this->request_buffer = ltrim(substr($cnt, $cl));
 
             } else {
-
                 $this->request_content = "";
                 $this->request_buffer = $cnt;
 
             }
 
             if (($this->request_protocol !== "HTTP/1.0") && ($this->request_protocol !== "HTTP/1.1")) {
-
                 $this->Set_Response_Status(400);
                 $this->Send_Response("Bad Request");
 
             } else {
-
                 $this->Handle_Request($url);
 
             }
@@ -264,7 +249,6 @@ abstract class Server extends Nanoserv\ConnectionHandler {
      * @param string $header
      */
     public function Add_Header($header) {
-
         $this->response_headers[] = $header;
 
     }
@@ -275,7 +259,6 @@ abstract class Server extends Nanoserv\ConnectionHandler {
      * @param string $content_type
      */
     public function Set_Content_Type($content_type) {
-
         $this->response_content_type = $content_type;
 
     }
@@ -288,7 +271,6 @@ abstract class Server extends Nanoserv\ConnectionHandler {
      * @param int $code
      */
     public function Set_Response_Status($code = 200) {
-
         $this->response_status = $code;
 
     }
@@ -299,9 +281,7 @@ abstract class Server extends Nanoserv\ConnectionHandler {
      * @param int $option
      */
     public function Set_Compression($opt = self::COMPRESS_AUTO) {
-
         switch ($opt) {
-
             case self::COMPRESS_AUTO:	$this->compress = extension_loaded("zlib") ? self::COMPRESS_AUTO : self::COMPRESS_OFF;		break;
             case self::COMPRESS_OFF:	$this->compress = $opt;																		break;
             default:					throw new Nanoserv\Exception("invalid compress option '{$opt}'");
@@ -318,15 +298,12 @@ abstract class Server extends Nanoserv\ConnectionHandler {
      * @return bool
      */
     protected function Compress_Response(&$data, &$encoding = NULL) {
-
         $methods = array(	"deflate"	=> "gzdeflate",
                             "gzip"		=> "gzencode",
                             "compress"	=> "gzcompress");
 
         foreach ($methods as $m => $func) {
-
             if (strpos($this->request_headers["ACCEPT-ENCODING"], $m) !== false) {
-
                 $method = $m;
                 break;
 
@@ -351,7 +328,6 @@ abstract class Server extends Nanoserv\ConnectionHandler {
      * @param string $data
      */
     protected function Send_Response($data, $length = null) {
-
         $keep = isset($this->request_headers["CONNECTION"]) ? (strtoupper($this->request_headers["CONNECTION"]) === "KEEP-ALIVE") : false;
 
         $resp = "HTTP/1.1 " . (int) $this->response_status . " " . $this->STATUS_CODES[$this->response_status] . "\r\n"
@@ -384,7 +360,6 @@ abstract class Server extends Nanoserv\ConnectionHandler {
  */
 abstract class AsyncServer extends namespace\Server {
     protected function Handle_Request($url) {
-
         $this->on_Request($url);
 
     }

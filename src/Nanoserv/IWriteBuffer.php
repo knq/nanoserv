@@ -6,7 +6,6 @@ namespace Nanoserv;
  * Write buffer interface
  */
 interface IWriteBuffer {
-
     /**
      * Setup a new write buffer
      *

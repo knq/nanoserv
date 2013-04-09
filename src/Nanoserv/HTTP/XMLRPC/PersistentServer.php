@@ -35,7 +35,6 @@ use Nanoserv;
  * @subpackage Handlers
  */
 class PersistentServer extends Nanoserv\HTTP\XMLRPC\Server {
-
     /**
      * Persistent object
      * @var object
@@ -48,7 +47,6 @@ class PersistentServer extends Nanoserv\HTTP\XMLRPC\Server {
      * @param object $o
      */
     public function __construct($o) {
-
         $this->wrapped = $o;
 
     }

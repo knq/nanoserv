@@ -12,7 +12,6 @@ namespace Nanoserv;
  * @since 0.9
  */
 class Timer {
-
     /**
      * System time for timer activation
      * @var float
@@ -40,7 +39,6 @@ class Timer {
      * @see Core::New_Timer()
      */
     public function __construct($time, $callback) {
-
         $this->microtime = $time;
         $this->callback = $callback;
 
@@ -54,7 +52,6 @@ class Timer {
      * @see Timer::Deactivate()
      */
     public function Activate() {
-
         $this->active = true;
 
     }
@@ -63,7 +60,6 @@ class Timer {
      * Deactivate timer
      */
     public function Deactivate() {
-
         $this->active = false;
 
     }

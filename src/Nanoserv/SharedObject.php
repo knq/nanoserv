@@ -10,7 +10,6 @@ namespace Nanoserv;
  * @since 0.9
  */
 class SharedObject {
-
     /**
      * caller process pid
      * @var int
@@ -43,7 +42,6 @@ class SharedObject {
      * @param object $o
      */
     public function __construct($o=false) {
-
         if ($o === false) $o = new StdClass();
 
         $this->_oid = ++self::$shared_count;
@@ -52,7 +50,6 @@ class SharedObject {
     }
 
     public function __get($k) {
-
         if (namespace\Core::$child_process) {
             return namespace\Core::$master_pipe->Ask_Master(array("oid" => $this->_oid, "action" => "G", "var" => $k));
 
@@ -64,13 +61,10 @@ class SharedObject {
     }
 
     public function __set($k, $v) {
-
         if (namespace\Core::$child_process) {
-
             namespace\Core::$master_pipe->Ask_Master(array("oid" => $this->_oid, "action" => "S", "var" => $k, "val" => $v), false);
 
         } else {
-
             $this->wrapped->$k = $v;
 
         }

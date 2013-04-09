@@ -10,7 +10,6 @@ namespace Nanoserv;
  * @since 0.9.61
  */
 abstract class DatagramHandler extends namespace\Handler {
-
     /**
      * Is the listener active ?
      * @var bool
@@ -25,7 +24,6 @@ abstract class DatagramHandler extends namespace\Handler {
      * @param mixed  $handler_options
      */
     public function __construct($addr) {
-
         $this->socket = new ServerSocket($addr);
 
     }
@@ -37,14 +35,11 @@ abstract class DatagramHandler extends namespace\Handler {
      * @since 0.9.61
      */
     public function Activate() {
-
         try {
-
             if ($ret = $this->socket->Listen(true)) $this->active = true;
             return $ret;
 
         } catch (ServerException $e) {
-
             throw new ServerException($e->getMessage(), $e->getCode(), $e->addr, $this);
 
         }
@@ -56,9 +51,7 @@ abstract class DatagramHandler extends namespace\Handler {
      * @since 0.9.61
      */
     public function Deactivate($close_socket = true) {
-
         if ($close_socket) {
-
             $this->socket->Close();
 
         }
@@ -88,14 +81,12 @@ abstract class DatagramHandler extends namespace\Handler {
      * @since 0.9.61
      */
     public function on_Read($from, $data) {
-
     }
 
     /**
      * DatagramHandler destructor
      */
     public function __destruct() {
-
         $this->Deactivate();
 
     }

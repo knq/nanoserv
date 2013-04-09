@@ -10,7 +10,6 @@ namespace Nanoserv;
  * @since 0.9
  */
 class ClientSocket extends namespace\Socket {
-
     /**
      * Connect timeout (seconds)
      * @var int
@@ -33,7 +32,6 @@ class ClientSocket extends namespace\Socket {
      * ClientSocket constructor
      */
     public function __construct($addr) {
-
         parent::__construct();
 
         $this->address = $addr;
@@ -42,15 +40,12 @@ class ClientSocket extends namespace\Socket {
         $s = strtok("");
 
         if (($proto === "udp") || ($proto === "unix")) {
-
             $this->real_address = $addr;
 
         } else {
-
             $this->real_address = "tcp:" . $s;
 
             if ($proto != "tcp") switch ($proto) {
-
                 case "ssl":		$this->crypto_type = STREAM_CRYPTO_METHOD_SSLv23_CLIENT;	break;
                 case "tls":		$this->crypto_type = STREAM_CRYPTO_METHOD_TLS_CLIENT;		break;
                 case "sslv2":	$this->crypto_type = STREAM_CRYPTO_METHOD_SSLv2_CLIENT;		break;
@@ -72,13 +67,11 @@ class ClientSocket extends namespace\Socket {
      * @since 0.9
      */
     public function Connect($timeout = false) {
-
         $errno = $errstr = false;
 
         $this->fd = @stream_socket_client($this->real_address, $errno, $errstr, 3, STREAM_CLIENT_ASYNC_CONNECT | STREAM_CLIENT_CONNECT, $this->context);
 
         if ($this->fd === false) {
-
             throw new ClientException("cannot connect to {$this->real_address}: {$errstr}", $errno, $this->real_address);
 
         }

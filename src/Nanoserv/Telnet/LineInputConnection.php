@@ -33,7 +33,6 @@ namespace Nanoserv\Telnet;
  * @subpackage Handlers
  */
 abstract class LineInputConnection extends namespace\Connection {
-
     /**
      * Maximum line length
      */
@@ -60,11 +59,9 @@ abstract class LineInputConnection extends namespace\Connection {
      * @param string $s
      */
     public function on_Telnet_Read($data) {
-
         $this->line_buffer .= $data;
 
         while (($p = strrpos($this->line_buffer, self::EOL_SEPARATOR)) !== false) {
-
             $lines = explode(self::EOL_SEPARATOR, substr($this->line_buffer, 0, $p));
             $this->line_buffer = substr($this->line_buffer, $p + strlen(self::EOL_SEPARATOR));
 
@@ -73,7 +70,6 @@ abstract class LineInputConnection extends namespace\Connection {
         }
 
         if (strlen($this->line_buffer) > self::MAX_LENGTH) {
-
             $this->on_Telnet_Read_Line($this->line_buffer);
             $this->line_buffer = "";
 

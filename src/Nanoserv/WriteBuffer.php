@@ -10,7 +10,6 @@ namespace Nanoserv;
  * @since 0.9
  */
 abstract class WriteBuffer {
-
     /**
      * Attached socket
      * @var Socket
@@ -37,7 +36,6 @@ abstract class WriteBuffer {
      * @param mixed  $callback
      */
     public function __construct(Socket $socket, $data, $callback = false) {
-
         $this->socket = $socket;
         $this->data = $data;
         $this->callback = $callback;
@@ -48,7 +46,6 @@ abstract class WriteBuffer {
      * WriteBuffer destructor
      */
     public function __destruct() {
-
         if ($this->callback) call_user_func($this->callback, $this->Waiting_Data());
 
     }

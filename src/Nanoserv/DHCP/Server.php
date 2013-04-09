@@ -35,7 +35,6 @@ use Nanoserv;
  * @subpackage Handlers
  */
 class Server {
-
     const MAGIC_COOKIE = 0x63825363;
 
     public $subnet_mask;
@@ -66,9 +65,7 @@ class Server {
     public $unhandled = array();
 
     public function __construct($data = NULL) {
-
         if (isset($data)) {
-
             list(,$magic) = unpack("N", substr($data, 0, 4));
 
             if ($magic !== self::MAGIC_COOKIE) throw new \Exception("unable to decode options, wrong magic cookie 0x" . dechex($magic));
@@ -77,19 +74,16 @@ class Server {
             $optlen = strlen($data);
 
             while ($cur < $optlen) {
-
                 $tmp = unpack("Ccode/Clen", substr($data, $cur, 2));
 
                 $code = $tmp["code"];
                 $len = $tmp["len"];
 
                 if ($code === 0) {
-
                     $cur++;
                     continue;
 
                 } elseif ($code === 255) {
-
                     break;
 
                 }
@@ -97,7 +91,6 @@ class Server {
                 $opt = substr($data, $cur + 2, $len);
 
                 switch ($code) {
-
                     case 12:
                     $this->hostname = $opt;
                     break;
@@ -152,7 +145,6 @@ class Server {
     }
 
     public static function Encode() {
-
     }
 
 }
@@ -164,7 +156,6 @@ class Server {
  * @subpackage Handlers
  */
 class Message {
-
     const BOOTP_REQUEST = 1;
     const BOOTP_REPLY = 2;
 
@@ -196,9 +187,7 @@ class Message {
     public $options;
 
     public function __construct($data = NULL) {
-
         if (isset($data)) {
-
             $tmp = unpack("Cop/Chtype/Chlen/Chops/Nxid/nsecs/nflags/Nciaddr/Nyiaddr/Nsiaddr/Ngiaddr", $data);
 
             $this->op = $tmp["op"];
@@ -219,7 +208,6 @@ class Message {
             $this->options = Options::Decode(substr($data, 236));
 
         } else {
-
             $this->options = new Options();
 
         }
@@ -227,9 +215,7 @@ class Message {
     }
 
     public function Op_To_String() {
-
         switch ($this->op) {
-
             case self::BOOTP_REQUEST:	return "BOOTPREQUEST";
             case self::BOOTP_REPLY:		return "BOOTPREPLY";
             default:					return "unknown";
@@ -239,9 +225,7 @@ class Message {
     }
 
     public function Htype_To_String() {
-
         switch ($this->htype) {
-
             case self::HTYPE_ETHERNET:	return "Ethernet";
             default:					return "unknown";
 
@@ -250,9 +234,7 @@ class Message {
     }
 
     public function Msg_Type_To_String() {
-
         switch ($this->options->dhcp_msg_type) {
-
             case self::DHCP_DISCOVER:	return "DHCPDISCOVER";
             case self::DHCP_OFFER:		return "DHCPOFFER";
             case self::DHCP_REQUEST:	return "DHCPREQUEST";
@@ -273,7 +255,6 @@ class Message {
     }
 
     public static function Encode() {
-
     }
 
 }
@@ -285,9 +266,7 @@ class Message {
  * @subpackage Handlers
  */
 abstract class Server extends Nanoserv\DatagramHandler {
-
     public function on_Read($from, $data) {
-
         $this->on_DHCP_Message($from, Message::Decode($data));
 
     }

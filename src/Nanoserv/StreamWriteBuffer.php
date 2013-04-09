@@ -10,7 +10,6 @@ namespace Nanoserv;
  * @since 2.1
  */
 class StreamWriteBuffer extends namespace\WriteBuffer implements namespace\IWriteBuffer {
-
     /**
      * Get availability of data from stream
      *

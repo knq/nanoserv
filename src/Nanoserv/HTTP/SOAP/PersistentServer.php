@@ -34,7 +34,6 @@ namespace Nanoserv\HTTP\SOAP;
  * @since 1.0.2
  */
 class PersistentServer extends namespace\Server {
-
     /**
      * Persistent object
      * @var object
@@ -48,15 +47,12 @@ class PersistentServer extends namespace\Server {
      * @param array  $soap_options
      */
     public function __construct($o, $soap_options=false) {
-
         $this->wrapped = $o;
 
         if ($soap_options === false) {
-
             parent::__construct($o);
 
         } else {
-
             parent::__construct($o, $soap_options);
 
         }
@@ -64,19 +60,16 @@ class PersistentServer extends namespace\Server {
     }
 
     public function Get_Exports() {
-
         $ret = array();
 
         $rc = new \ReflectionClass(get_class($this->wrapped));
 
         foreach ($rc->getMethods() as $rm) {
-
             if ((!$rm->isPublic()) || ($rm->getDeclaringClass() != $rc)) continue;
 
             $params = array();
 
             foreach ($rm->getParameters() as $rp) {
-
                 $params[] = array("name" => $rp->getName());
 
             }

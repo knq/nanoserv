@@ -10,7 +10,6 @@ namespace Nanoserv;
  * @since 0.9
  */
 class StaticWriteBuffer extends namespace\WriteBuffer implements namespace\IWriteBuffer {
-
     /**
      * Buffered data pointer
      * @var int
@@ -35,7 +34,6 @@ class StaticWriteBuffer extends namespace\WriteBuffer implements namespace\IWrit
      * @since 1.1
      */
     public function Write($length = 16384) {
-
         $this->pointer += $this->socket->Write(substr($this->data, $this->pointer, $length));
 
     }

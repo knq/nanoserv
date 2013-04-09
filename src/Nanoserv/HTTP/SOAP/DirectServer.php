@@ -36,27 +36,22 @@ namespace Nanoserv\HTTP\SOAP;
  * @since 1.0.2
  */
 abstract class DirectServer extends namespace\Server {
-
     final public function on_Call($method, $args) {
-
         if (is_callable(array($this, $method))) return call_user_func_array(array($this, $method), $args);
 
     }
 
     public function Get_Exports() {
-
         $ret = array();
 
         $rc = new \ReflectionClass(get_class($this));
 
         foreach ($rc->getMethods() as $rm) {
-
             if ((!$rm->isPublic()) || ($rm->getDeclaringClass() != $rc)) continue;
 
             $params = array();
 
             foreach ($rm->getParameters() as $rp) {
-
                 $params[] = array("name" => $rp->getName());
 
             }

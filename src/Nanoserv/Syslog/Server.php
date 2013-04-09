@@ -35,7 +35,6 @@ use Nanoserv\DatagramHandler
  * @subpackage Handlers
  */
 abstract class Server extends DatagramHandler {
-
     /**
      * Get facility name from numerical code
      *
@@ -43,9 +42,7 @@ abstract class Server extends DatagramHandler {
      * @return string
      */
     public static function Code_To_Facility($code) {
-
         switch ($code) {
-
             case 0:		return "kern";
             case 1:		return "user";
             case 2:		return "mail";
@@ -80,9 +77,7 @@ abstract class Server extends DatagramHandler {
      * @return int
      */
     public static function Facility_To_Code($name) {
-
         switch (strtolower($name)) {
-
             case "kern":	return 0;
             case "user":	return 1;
             case "mail":	return 2;
@@ -109,7 +104,6 @@ abstract class Server extends DatagramHandler {
     }
 
     final public function on_Read($from, $data) {
-
         $host = strtok($from, ":");
 
         if (($data{0} !== "<") || (($p = strpos($data, ">")) === false)) return;

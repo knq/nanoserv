@@ -10,7 +10,6 @@ namespace Nanoserv;
  * @since 0.9
  */
 abstract class Handler {
-
     /**
      * Attached socket
      * @var Socket
