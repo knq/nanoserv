@@ -29,5 +29,4 @@ interface IWriteBuffer {
      * @param int $length
      */
     public function Write($length = NULL);
-
 }

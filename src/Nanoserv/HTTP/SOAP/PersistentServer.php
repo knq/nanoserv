@@ -51,12 +51,9 @@ class PersistentServer extends namespace\Server {
 
         if ($soap_options === false) {
             parent::__construct($o);
-
         } else {
             parent::__construct($o, $soap_options);
-
         }
-
     }
 
     public function Get_Exports() {
@@ -71,20 +68,15 @@ class PersistentServer extends namespace\Server {
 
             foreach ($rm->getParameters() as $rp) {
                 $params[] = array("name" => $rp->getName());
-
             }
 
             $ret[$rm->getName()] = $params;
-
         }
 
         return $ret;
-
     }
 
     final public function on_Call($method, $args) {
         return call_user_func_array(array($this->wrapped, $method), $args);
-
     }
-
 }

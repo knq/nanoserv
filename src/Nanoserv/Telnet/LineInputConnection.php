@@ -66,15 +66,12 @@ abstract class LineInputConnection extends namespace\Connection {
             $this->line_buffer = substr($this->line_buffer, $p + strlen(self::EOL_SEPARATOR));
 
             foreach ($lines as $line) $this->on_Telnet_Read_Line(rtrim($line, "\r\n").self::EOL_SEPARATOR);
-
         }
 
         if (strlen($this->line_buffer) > self::MAX_LENGTH) {
             $this->on_Telnet_Read_Line($this->line_buffer);
             $this->line_buffer = "";
-
         }
-
     }
 
     /**
@@ -85,5 +82,4 @@ abstract class LineInputConnection extends namespace\Connection {
      * @param string $s
      */
     abstract public function on_Telnet_Read_Line($s);
-
 }

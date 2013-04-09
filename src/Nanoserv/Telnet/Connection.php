@@ -54,24 +54,20 @@ abstract class Connection extends ConnectionHandler {
 
     private function Set_Remote_Option($type, $option) {
         $this->remote_options[] = array($type, $option);
-
     }
 
     public function Send_Option($type, $option) {
         $this->Raw_Write(self::IAC . $type . $option);
-
     }
 
     protected function Raw_Write($data, $callback=false) {
         return parent::Write($data, $callback);
-
     }
 
     public function Write($data, $callback=false) {
         $data = str_replace(self::IAC, self::IAC . self::IAC, $data);
 
         return parent::Write($data, $callback);
-
     }
 
     public function on_Read($data) {
@@ -94,28 +90,20 @@ abstract class Connection extends ConnectionHandler {
                         $tmp .= self::IAC;
                         $a++;
                         break;
-
                     }
-
                 } else {
                     $tmp .= $data[$a];
-
                 }
-
             }
 
             if (strlen($tmp)) {
                 $data = $tmp;
-
             } else {
                 return;
-
             }
-
         }
 
         $this->on_Telnet_Read($data);
-
     }
 
     /**
@@ -126,5 +114,4 @@ abstract class Connection extends ConnectionHandler {
      * @param string $s
      */
     abstract public function on_Telnet_Read($s);
-
 }

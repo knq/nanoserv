@@ -16,7 +16,5 @@ class ServerException extends namespace\Exception {
         parent::__construct($errmsg, $errno, $addr);
 
         $this->listener = $listener;
-
     }
-
 }

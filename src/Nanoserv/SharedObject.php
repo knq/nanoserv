@@ -46,38 +46,29 @@ class SharedObject {
 
         $this->_oid = ++self::$shared_count;
         $this->wrapped = $o;
-
     }
 
     public function __get($k) {
         if (namespace\Core::$child_process) {
             return namespace\Core::$master_pipe->Ask_Master(array("oid" => $this->_oid, "action" => "G", "var" => $k));
-
         } else {
             return $this->wrapped->$k;
-
         }
-
     }
 
     public function __set($k, $v) {
         if (namespace\Core::$child_process) {
             namespace\Core::$master_pipe->Ask_Master(array("oid" => $this->_oid, "action" => "S", "var" => $k, "val" => $v), false);
-
         } else {
             $this->wrapped->$k = $v;
-
         }
-
     }
 
     public function __call($m, $a) {
         if (namespace\Core::$child_process) {
             return namespace\Core::$master_pipe->Ask_Master(array("oid" => $this->_oid, "action" => "C", "func" => $m, "args" => $a));
-
         } else {
             return call_user_func_array(array($this->wrapped, $m), $a);
-
         }
     }
 }

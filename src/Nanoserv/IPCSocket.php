@@ -34,7 +34,6 @@ class IPCSocket extends namespace\Socket {
         $this->Set_Write_Buffer(self::IPC_MAX_PACKET_SIZE);
 
         $this->pid = $pid;
-
     }
 
     /**
@@ -45,7 +44,6 @@ class IPCSocket extends namespace\Socket {
      */
     public function Read() {
         return fread($this->fd, self::IPC_MAX_PACKET_SIZE);
-
     }
 
     /**
@@ -63,7 +61,6 @@ class IPCSocket extends namespace\Socket {
         list($s1, $s2) = stream_socket_pair($domain, $type, $proto);
 
         return array(new IPCSocket($s1), new IPCSocket($s2));
-
     }
 
     /**
@@ -83,7 +80,5 @@ class IPCSocket extends namespace\Socket {
         $dfd = array();
 
         if (@stream_select($rfd, $dfd, $dfd, 600)) return unserialize($this->Read());
-
     }
-
 }

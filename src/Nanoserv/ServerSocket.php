@@ -34,7 +34,6 @@ class ServerSocket extends namespace\Socket {
 
         if (($proto === "udp") || ($proto === "unix")) {
             $this->real_address = $addr;
-
         } else {
             $this->real_address = "tcp:" . strtok("");
 
@@ -48,16 +47,11 @@ class ServerSocket extends namespace\Socket {
 
                 if (defined($cname = "STREAM_CRYPTO_METHOD_".strtoupper($proto)."_SERVER")) {
                     $this->crypto_type = constant($cname);
-
                 } else {
                     throw new ServerException("unknown transport/crypto type '{$proto}'");
-
                 }
-
             }
-
         }
-
     }
 
     /**
@@ -73,14 +67,12 @@ class ServerSocket extends namespace\Socket {
 
         if ($this->fd === false) {
             throw new ServerException("cannot listen to {$this->real_address}: {$errstr}", $errno, $this->real_address);
-
         }
 
         $this->Set_Blocking(false);
         $this->Set_Timeout(0);
 
         return true;
-
     }
 
     /**
@@ -91,7 +83,5 @@ class ServerSocket extends namespace\Socket {
      */
     public function Accept() {
         return @stream_socket_accept($this->fd, 0);
-
     }
-
 }

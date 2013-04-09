@@ -29,7 +29,6 @@ abstract class ConnectionHandler extends namespace\Handler {
      */
     public function Write($data, $callback=false) {
         return Core::New_Static_Write_Buffer($this->socket, $data, $callback);
-
     }
 
     /**
@@ -42,7 +41,6 @@ abstract class ConnectionHandler extends namespace\Handler {
      */
     public function Write_Stream($stream, $callback=false) {
         return Core::New_Stream_Write_Buffer($this->socket, $stream, $callback);
-
     }
 
     /**
@@ -54,14 +52,11 @@ abstract class ConnectionHandler extends namespace\Handler {
     public function Connect($timeout=false) {
         try {
             $this->socket->Connect($timeout);
-
         } catch (ClientException $e) {
             Core::Free_Connection($this);
 
             throw new ClientException($e->getMessage(), $e->getCode(), $e->addr, $this);
-
         }
-
     }
 
     /**
@@ -71,7 +66,6 @@ abstract class ConnectionHandler extends namespace\Handler {
         $this->socket->Close();
 
         Core::Free_Connection($this);
-
     }
 
     /**
@@ -128,5 +122,4 @@ abstract class ConnectionHandler extends namespace\Handler {
      */
     public function on_Fork_Done() {
     }
-
 }

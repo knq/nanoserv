@@ -81,12 +81,10 @@ abstract class Server extends LineInputConnection {
      */
     public function __construct() {
         $this->hostname = php_uname("n");
-
     }
 
     public function on_Accept() {
         $this->Write("200 ".$this->hostname." SMTP ".(static::SERVER_STRING ? static::SERVER_STRING : "nanoserv/2.3.0")."\n");
-
     }
 
     final public function on_Read_Line($data) {
@@ -100,11 +98,9 @@ abstract class Server extends LineInputConnection {
                 if (!$this->on_SMTP_HELO($this->helo_message)) {
                     $this->Disconnect();
                     break;
-
                 }
 
                 $this->Write("250 ".$this->hostname." Hello\n");
-
             } elseif (strpos($updata, "MAIL FROM") === 0) {
                 strtok($data, ":");
                 $this->env_from = trim(strtok(""));
@@ -112,7 +108,6 @@ abstract class Server extends LineInputConnection {
                 if (!$this->on_SMTP_MAIL_FROM($this->env_from)) break;
 
                 $this->Write("250 ".$this->env_from."... Sender ok\n");
-
             } elseif (strpos($updata, "RCPT TO") === 0) {
                 strtok($data, ":");
                 $this->env_rcpt[] = $rcpt = trim(strtok(""));
@@ -120,40 +115,29 @@ abstract class Server extends LineInputConnection {
                 if (!$this->on_SMTP_RCPT_TO($rcpt)) break;
 
                 $this->Write("250 ".$rcpt."... Recipient ok\n");
-
             } elseif (strpos($updata, "DATA") === 0) {
                 $this->Write("354 Enter mail, end with '.' on a line by itself\n");
                 $this->indata = true;
-
             } elseif (strpos($updata, "QUIT") === 0) {
                 $this->Write("251 ".$this->hostname." closing connection\n", array($this, "Disconnect"));
-
             } else {
                 if (!$this->on_SMTP_Unhandled(trim($data))) break;
-
             }
-
         } else {
             if (rtrim($data) !== ".") {
                 $this->data_buffer .= $data;
-
             } else {
                 if ($this->on_Mail($this->env_from, $this->env_rcpt, $this->data_buffer)) {
                     $this->Write("250 Message accepted\n");
-
                 } else {
                     $this->Write("554 Message rejected\n");
-
                 }
 
                 $this->indata = false;
                 $this->env_from = "";
                 $this->env_rcpt = array();
-
             }
-
         }
-
     }
 
     /**
@@ -166,7 +150,6 @@ abstract class Server extends LineInputConnection {
      */
     public function on_SMTP_HELO($data) {
         return true;
-
     }
 
     /**
@@ -179,7 +162,6 @@ abstract class Server extends LineInputConnection {
      */
     public function on_SMTP_MAIL_FROM($data) {
         return true;
-
     }
 
     /**
@@ -192,7 +174,6 @@ abstract class Server extends LineInputConnection {
      */
     public function on_SMTP_RCPT_TO($data) {
         return true;
-
     }
 
     /**
@@ -207,7 +188,6 @@ abstract class Server extends LineInputConnection {
         $this->Write("500 Unknown command : '$data'\n");
 
         return true;
-
     }
 
     /**
@@ -222,5 +202,4 @@ abstract class Server extends LineInputConnection {
      */
     public function on_Mail($env_from, $env_to, $data) {
     }
-
 }

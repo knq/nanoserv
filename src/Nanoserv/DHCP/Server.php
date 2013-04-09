@@ -82,10 +82,8 @@ class Server {
                 if ($code === 0) {
                     $cur++;
                     continue;
-
                 } elseif ($code === 255) {
                     break;
-
                 }
 
                 $opt = substr($data, $cur + 2, $len);
@@ -128,25 +126,19 @@ class Server {
                     default:
                     $this->unhandled[] = array("code" => $code, "opt" => bin2hex($opt));
                     break;
-
                 }
 
                 $cur += $len + 2;
-
             }
-
         }
-
     }
 
     public static function Decode($data) {
         return new self($data);
-
     }
 
     public static function Encode() {
     }
-
 }
 
 /**
@@ -206,12 +198,9 @@ class Message {
             $this->file = substr($data, 108, 128);
 
             $this->options = Options::Decode(substr($data, 236));
-
         } else {
             $this->options = new Options();
-
         }
-
     }
 
     public function Op_To_String() {
@@ -219,18 +208,14 @@ class Message {
             case self::BOOTP_REQUEST:	return "BOOTPREQUEST";
             case self::BOOTP_REPLY:		return "BOOTPREPLY";
             default:					return "unknown";
-
         }
-
     }
 
     public function Htype_To_String() {
         switch ($this->htype) {
             case self::HTYPE_ETHERNET:	return "Ethernet";
             default:					return "unknown";
-
         }
-
     }
 
     public function Msg_Type_To_String() {
@@ -244,19 +229,15 @@ class Message {
             case self::DHCP_RELEASE:	return "DHCPRELEASE";
             case self::DHCP_INFORM:		return "DHCPINFORM";
             default:					return "unknown";
-
         }
-
     }
 
     public static function Decode($data) {
         return new self($data);
-
     }
 
     public static function Encode() {
     }
-
 }
 
 /**
@@ -268,7 +249,6 @@ class Message {
 abstract class Server extends Nanoserv\DatagramHandler {
     public function on_Read($from, $data) {
         $this->on_DHCP_Message($from, Message::Decode($data));
-
     }
 
     /**
@@ -278,5 +258,4 @@ abstract class Server extends Nanoserv\DatagramHandler {
      * @param Message $msg
      */
     abstract public function on_DHCP_Message($from, Message $msg);
-
 }

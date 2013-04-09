@@ -16,7 +16,5 @@ abstract class Exception extends \Exception {
         parent::__construct($errmsg, $errno);
 
         $this->addr = $addr;
-
     }
-
 }

@@ -41,7 +41,6 @@ class Timer {
     public function __construct($time, $callback) {
         $this->microtime = $time;
         $this->callback = $callback;
-
     }
 
     /**
@@ -53,7 +52,6 @@ class Timer {
      */
     public function Activate() {
         $this->active = true;
-
     }
 
     /**
@@ -61,7 +59,5 @@ class Timer {
      */
     public function Deactivate() {
         $this->active = false;
-
     }
-
 }

@@ -48,12 +48,9 @@ class PersistentServer extends Nanoserv\HTTP\XMLRPC\Server {
      */
     public function __construct($o) {
         $this->wrapped = $o;
-
     }
 
     final public function on_Call($method, $args) {
         return call_user_func_array(array($this->wrapped, $method), $args);
-
     }
-
 }

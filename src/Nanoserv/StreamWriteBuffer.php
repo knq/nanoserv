@@ -18,7 +18,6 @@ class StreamWriteBuffer extends namespace\WriteBuffer implements namespace\IWrit
      */
     public function Waiting_Data() {
         return !@feof($this->data);
-
     }
 
     /**
@@ -29,7 +28,5 @@ class StreamWriteBuffer extends namespace\WriteBuffer implements namespace\IWrit
      */
     public function Write($length = 16384) {
         return $this->socket->Write_From_Stream($this->data, $length);
-
     }
-
 }

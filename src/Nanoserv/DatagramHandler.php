@@ -25,7 +25,6 @@ abstract class DatagramHandler extends namespace\Handler {
      */
     public function __construct($addr) {
         $this->socket = new ServerSocket($addr);
-
     }
 
     /**
@@ -38,12 +37,9 @@ abstract class DatagramHandler extends namespace\Handler {
         try {
             if ($ret = $this->socket->Listen(true)) $this->active = true;
             return $ret;
-
         } catch (ServerException $e) {
             throw new ServerException($e->getMessage(), $e->getCode(), $e->addr, $this);
-
         }
-
     }
 
     /**
@@ -53,11 +49,9 @@ abstract class DatagramHandler extends namespace\Handler {
     public function Deactivate($close_socket = true) {
         if ($close_socket) {
             $this->socket->Close();
-
         }
 
         $this->active = false;
-
     }
 
     /**
@@ -70,7 +64,6 @@ abstract class DatagramHandler extends namespace\Handler {
      */
     public function Write($to, $data) {
         return $this->socket->Write_To($to, $data);
-
     }
 
     /**
@@ -88,6 +81,5 @@ abstract class DatagramHandler extends namespace\Handler {
      */
     public function __destruct() {
         $this->Deactivate();
-
     }
 }

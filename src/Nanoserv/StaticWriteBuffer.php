@@ -24,7 +24,6 @@ class StaticWriteBuffer extends namespace\WriteBuffer implements namespace\IWrit
      */
     public function Waiting_Data() {
         return isset($this->data[$this->pointer]);
-
     }
 
     /**
@@ -35,7 +34,5 @@ class StaticWriteBuffer extends namespace\WriteBuffer implements namespace\IWrit
      */
     public function Write($length = 16384) {
         $this->pointer += $this->socket->Write(substr($this->data, $this->pointer, $length));
-
     }
-
 }

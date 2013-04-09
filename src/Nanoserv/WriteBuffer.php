@@ -39,7 +39,6 @@ abstract class WriteBuffer {
         $this->socket = $socket;
         $this->data = $data;
         $this->callback = $callback;
-
     }
 
     /**
@@ -47,7 +46,5 @@ abstract class WriteBuffer {
      */
     public function __destruct() {
         if ($this->callback) call_user_func($this->callback, $this->Waiting_Data());
-
     }
-
 }

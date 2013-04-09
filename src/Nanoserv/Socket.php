@@ -90,7 +90,6 @@ class Socket {
     public function __construct($fd = false, $crypto_type = false) {
         if ($fd === false) {
             $this->context = stream_context_create();
-
         } else {
             $this->fd = $fd;
             $this->connected = true;
@@ -98,11 +97,9 @@ class Socket {
             $this->Set_Timeout(0);
 
             if ($crypto_type) $this->crypto_type = $crypto_type;
-
         }
 
         $this->id = ++Socket::$sck_cnt;
-
     }
 
     /**
@@ -114,12 +111,9 @@ class Socket {
     public function Get_Options() {
         if ($this->fd) {
             return stream_context_get_options($this->fd);
-
         } else {
             return stream_context_get_options($this->context);
-
         }
-
     }
 
     /**
@@ -134,12 +128,9 @@ class Socket {
     public function Set_Option($wrapper, $opt, $val) {
         if ($this->fd) {
             return stream_context_set_option($this->fd, $wrapper, $opt, $val);
-
         } else {
             return stream_context_set_option($this->context, $wrapper, $opt, $val);
-
         }
-
     }
 
     /**
@@ -151,7 +142,6 @@ class Socket {
      */
     protected function Set_Timeout($timeout) {
         return stream_set_timeout($this->fd, $timeout);
-
     }
 
     /**
@@ -163,7 +153,6 @@ class Socket {
      */
     protected function Set_Blocking($block) {
         return stream_set_blocking($this->fd, $block);
-
     }
 
     /**
@@ -181,7 +170,6 @@ class Socket {
         $this->block_reads = $block;
 
         return $ret;
-
     }
 
     /**
@@ -193,7 +181,6 @@ class Socket {
      */
     public function Set_Write_Buffer($buffer_size) {
         return stream_set_write_buffer($this->fd, $buffer_size);
-
     }
 
     /**
@@ -212,7 +199,6 @@ class Socket {
         $this->pending_crypto = $ret === 0;
 
         return $ret;
-
     }
 
     /**
@@ -224,7 +210,6 @@ class Socket {
     public function Setup() {
         if (isset($this->crypto_type)) return $this->Enable_Crypto();
         return true;
-
     }
 
     /**
@@ -235,7 +220,6 @@ class Socket {
      */
     public function Get_Name() {
         return stream_socket_get_name($this->fd, false);
-
     }
 
     /**
@@ -246,7 +230,6 @@ class Socket {
      */
     public function Get_Peer_Name() {
         return stream_socket_get_name($this->fd, true);
-
     }
 
     /**
@@ -258,7 +241,6 @@ class Socket {
      */
     public function Read() {
         return fread($this->fd, self::DEFAULT_READ_LENGTH);
-
     }
 
     /**
@@ -271,7 +253,6 @@ class Socket {
      */
     public function Read_From(&$addr, $len = 16384) {
         return stream_socket_recvfrom($this->fd, $len, NULL, $addr);
-
     }
 
     /**
@@ -288,7 +269,6 @@ class Socket {
 
         if (isset($data[$nb])) $this->blocked = true;
         return $nb;
-
     }
 
     /**
@@ -301,7 +281,6 @@ class Socket {
      */
     public function Write_To($to, $data) {
         return stream_socket_sendto($this->fd, $data, NULL, $to);
-
     }
 
     /**
@@ -316,7 +295,6 @@ class Socket {
      */
     public function Write_From_Stream($stream, $len = 16384) {
         return stream_copy_to_stream($stream, $this->fd, $len);
-
     }
 
     /**
@@ -333,7 +311,6 @@ class Socket {
         stream_socket_recvfrom($fd, 1, STREAM_PEEK);
 
         return feof($fd);
-
     }
 
     /**
@@ -344,7 +321,6 @@ class Socket {
         @fclose($this->fd);
 
         $this->connected = $this->pending_connect = false;
-
     }
 
     /**
@@ -354,7 +330,5 @@ class Socket {
         Core::Free_Write_Buffers($this->id);
 
         $this->Close();
-
     }
-
 }

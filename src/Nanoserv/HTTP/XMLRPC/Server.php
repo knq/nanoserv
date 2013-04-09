@@ -52,22 +52,16 @@ abstract class Server extends Nanoserv\HTTP\Server {
 
         if (is_int($var)) {
             $ret .= "<i4>".$var."</i4>";
-
         } elseif (is_bool($var)) {
             $ret .= "<boolean>".(int) $var."</boolean>";
-
         } elseif (is_string($var)) {
             if (htmlentities($var) != $var) {
                 $ret .= "<base64>".base64_encode($var)."</base64>";
-
             } else {
                 $ret .= "<string>".$var."</string>";
-
             }
-
         } elseif (is_float($var)) {
             $ret .= "<double>".$var."</double>";
-
         } elseif (is_array($var)) {
             if (self::Is_Assoc($var)) {
                 $ret .= "<struct>";
@@ -77,26 +71,21 @@ abstract class Server extends Nanoserv\HTTP\Server {
                     $ret .= "<name>".$k."</name>";
                     $ret .= self::Variable_To_XML_String($v);
                     $ret .= "</member>";
-
                 }
 
                 $ret .= "</struct>";
-
             } else {
                 $ret .= "<array><data>";
 
                 foreach ($var as $v) $ret .= self::Variable_To_XML_String($v);
 
                 $ret .= "</data></array>";
-
             }
-
         }
 
         $ret .= "</value>";
 
         return $ret;
-
     }
 
     /**
@@ -107,7 +96,6 @@ abstract class Server extends Nanoserv\HTTP\Server {
      */
     private static function Is_Assoc($arr) {
         return is_array($arr) && array_keys($arr) !== range(0, sizeof($arr) - 1);
-
     }
 
     /**
@@ -121,11 +109,9 @@ abstract class Server extends Nanoserv\HTTP\Server {
 
         if (isset($type)) {
             $value = (string) $xvalue;
-
         } else {
             $type = "string";
             $value = (string) $xml;
-
         }
 
         switch (strtoupper($type)) {
@@ -157,11 +143,9 @@ abstract class Server extends Nanoserv\HTTP\Server {
 
             case "STRING":
             default:
-
         }
 
         return $value;
-
     }
 
     /**
@@ -188,9 +172,7 @@ abstract class Server extends Nanoserv\HTTP\Server {
                         case "VALUE":
                         $mval = self::XML_Value_To_Variable($xval);
                         break;
-
                     }
-
                 }
 
                 $ret[$mname] = $mval;
@@ -200,13 +182,10 @@ abstract class Server extends Nanoserv\HTTP\Server {
                 case "DATA":
                 foreach ($xelem as $xval) $ret[] = self::XML_Value_To_Variable($xval);
                 break;
-
             }
-
         }
 
         return $ret;
-
     }
 
     /**
@@ -222,11 +201,9 @@ abstract class Server extends Nanoserv\HTTP\Server {
             if (strtoupper($topname) != "PARAM") continue;
 
             foreach ($xparam as $xvalue) $ret[] = self::XML_Value_To_Variable($xvalue);
-
         }
 
         return $ret;
-
     }
 
     /**
@@ -237,12 +214,10 @@ abstract class Server extends Nanoserv\HTTP\Server {
      */
     protected static function XML_Add_MethodResponse_Envelope($xml_result) {
         return "<methodResponse><params><param>{$xml_result}</param></params></methodResponse>";
-
     }
 
     protected static function XML_Add_Fault_Envelope(\Exception $e) {
         return "<methodResponse><fault><value><struct><member><name>faultCode</name><value><int>" . $e->getCode() . "</int></value></member><member><name>faultString</name><value><string>" . $e->getMessage() . "</string></value></member></struct></value></fault></methodResponse>";
-
     }
 
     final public function on_Request($url) {
@@ -254,7 +229,6 @@ abstract class Server extends Nanoserv\HTTP\Server {
             $this->Set_Response_Status(400);
 
             return "";
-
         }
 
         foreach ($xreq as $name => $xtopelem) {
@@ -266,21 +240,16 @@ abstract class Server extends Nanoserv\HTTP\Server {
                 case "PARAMS":
                 $params = $xtopelem;
                 break;
-
             }
-
         }
 
         $this->Set_Content_Type("text/xml");
 
         try {
             return self::XML_Add_MethodResponse_Envelope(self::Variable_To_XML_String($this->on_Call($method, isset($params) ? self::XML_Params_To_Array($params) : NULL)));
-
         } catch (\Exception $e) {
             return self::XML_Add_Fault_Envelope($e);
-
         }
-
     }
 
     /**
@@ -293,5 +262,4 @@ abstract class Server extends Nanoserv\HTTP\Server {
      * @return mixed
      */
     abstract public function on_Call($method, $args);
-
 }

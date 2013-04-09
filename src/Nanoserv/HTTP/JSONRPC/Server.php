@@ -56,29 +56,22 @@ abstract class Server extends Nanoserv\HTTP\Server {
                 case JSON_ERROR_CTRL_CHAR:	$ret["error"] = "Control character error, possibly incorrectly encoded";	break;
                 case JSON_ERROR_SYNTAX:		$ret["error"] = "Syntax error";												break;
                 default:					$ret["error"] = "Unknown error";											break;
-
             }
 
             return json_encode($ret);
-
         }
 
         try {
             $ret["result"] = $this->on_Call($req->method, $req->params);
-
         } catch (\Exception $e) {
             $ret["error"] = $e->getMessage();
-
         }
 
         if (isset($req->id)) {
             return json_encode($ret);
-
         } else {
             return "";
-
         }
-
     }
 
     /**
@@ -91,5 +84,4 @@ abstract class Server extends Nanoserv\HTTP\Server {
      * @return mixed
      */
     abstract public function on_Call($method, $args);
-
 }

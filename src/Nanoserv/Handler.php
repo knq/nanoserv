@@ -27,7 +27,5 @@ abstract class Handler {
      */
     public function Set_Option($wrapper, $opt, $val) {
         return $this->socket->Set_Option($wrapper, $opt, $val);
-
     }
-
 }

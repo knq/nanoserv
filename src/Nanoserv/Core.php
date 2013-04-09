@@ -159,15 +159,12 @@ final class Core {
     public static function New_Listener($addr, $handler_classname, $handler_options=false) {
         if (strtolower(strtok($addr, ":")) == "udp") {
             $l = self::New_Datagram_Handler($addr, $handler_classname);
-
         } else {
             $l = new Listener($addr, $handler_classname, $handler_options);
             self::$listeners[] = $l;
-
         }
 
         return $l;
-
     }
 
     /**
@@ -187,16 +184,12 @@ final class Core {
                 unset(self::$listeners[$k]);
 
                 return true;
-
             }
-
         } elseif ($l instanceof DatagramHandler) {
             return self::Free_Datagram_Handler($l);
-
         }
 
         return false;
-
     }
 
     /**
@@ -219,11 +212,9 @@ final class Core {
 
         if ($wb->Waiting_Data()) {
             self::$write_buffers[$socket->id][] = $wb;
-
         }
 
         return $wb;
-
     }
 
     /**
@@ -246,11 +237,9 @@ final class Core {
 
         if ($wb->Waiting_Data()) {
             self::$write_buffers[$socket->id][] = $wb;
-
         }
 
         return $wb;
-
     }
 
     /**
@@ -261,7 +250,6 @@ final class Core {
      */
     public static function Free_Write_Buffers($sid) {
         unset(self::$write_buffers[$sid]);
-
     }
 
     /**
@@ -283,7 +271,6 @@ final class Core {
         self::$connections[$sck->id] = $h;
 
         return $h;
-
     }
 
     /**
@@ -303,7 +290,6 @@ final class Core {
 
         if (self::$child_process && (self::$forked_connection === $h)) exit();
         return true;
-
     }
 
     /**
@@ -320,7 +306,6 @@ final class Core {
         self::$dgram_handlers[$h->socket->id] = $h;
 
         return $h;
-
     }
 
     /**
@@ -334,7 +319,6 @@ final class Core {
         unset(self::$dgram_handlers[$h->socket->id]);
 
         return true;
-
     }
 
     /**
@@ -353,7 +337,6 @@ final class Core {
         self::$shared_objects[$shr->_oid] = $shr;
 
         return $shr;
-
     }
 
     /**
@@ -364,7 +347,6 @@ final class Core {
      */
     public static function Free_Shared_Object(SharedObject $o) {
         unset(self::$shared_objects[$o->_oid]);
-
     }
 
     /**
@@ -382,7 +364,6 @@ final class Core {
         self::$timers_updated = true;
 
         return $t;
-
     }
 
     /**
@@ -397,7 +378,6 @@ final class Core {
         self::$timers = array();
 
         return $ret;
-
     }
 
     /**
@@ -415,7 +395,6 @@ final class Core {
         foreach (self::$connections as $c) if ($c->socket->connected || $include_pending_connect) $ret[] = $c;
 
         return $ret;
-
     }
 
     /**
@@ -431,7 +410,6 @@ final class Core {
         foreach (self::$listeners as $l) if ($l->active || $include_inactive) $ret[] = $l;
 
         return $ret;
-
     }
 
     /**
@@ -447,7 +425,6 @@ final class Core {
         foreach (self::$timers as $t) if ($t->active || $include_inactive) $ret[] = $t;
 
         return $ret;
-
     }
 
     /**
@@ -460,7 +437,6 @@ final class Core {
      */
     public static function Set_Max_Children($i) {
         self::$max_forked_processes = $i;
-
     }
 
     /**
@@ -471,9 +447,7 @@ final class Core {
     public static function Flush_Write_Buffers() {
         while (self::$write_buffers) {
             self::Run(1);
-
         }
-
     }
 
     /**
@@ -485,7 +459,6 @@ final class Core {
     public static function Fork() {
         if ($has_shared = (SharedObject::$shared_count > 0)) {
             list($s1, $s2) = IPCSocket::Pair();
-
         }
 
         $pid = pcntl_fork();
@@ -495,22 +468,17 @@ final class Core {
 
             if ($has_shared) {
                 self::$master_pipe = $s2;
-
             }
-
         } elseif ($pid > 0) {
             ++self::$nb_forked_processes;
 
             if ($has_shared) {
                 $s1->pid = $pid;
                 self::$forked_pipes[$pid] = $s1;
-
             }
-
         }
 
         return $pid;
-
     }
 
     /**
@@ -538,17 +506,13 @@ final class Core {
             if ($time < 0) {
                 $poll_max_wait = -$time;
                 $exit_mt = microtime(true) - $time;
-
             } else {
                 $poll_max_wait = $time;
                 $exit = true;
-
             }
-
         } else {
             $poll_max_wait = 60;
             $exit = false;
-
         }
 
         do {
@@ -559,7 +523,6 @@ final class Core {
             if (self::$timers_updated) {
                 usort(self::$timers, function(Timer $a, Timer $b) { return $a->microtime > $b->microtime; });
                 self::$timers_updated = false;
-
             }
 
             $next_timer_md = NULL;
@@ -568,15 +531,12 @@ final class Core {
                 if ($tmr->microtime > $t) {
                     $next_timer_md = $tmr->microtime - $t;
                     break;
-
                 } elseif ($tmr->active) {
                     $tmr->Deactivate();
                     call_user_func($tmr->callback);
-
                 }
 
                 unset(self::$timers[$k]);
-
             }
 
             if (self::$timers_updated) {
@@ -588,13 +548,10 @@ final class Core {
                     if ($tmr->microtime > $t) {
                         $next_timer_md = $tmr->microtime - $t;
                         break;
-
                     }
-
                 }
 
                 self::$timers_updated = false;
-
             }
 
             // Write buffers to non blocked sockets
@@ -611,13 +568,9 @@ final class Core {
                             if (!self::$write_buffers[$wb->socket->id]) self::Free_Write_Buffers($wb->socket->id);
 
                             break;
-
                         }
-
                     }
-
                 }
-
             }
 
             $handler = $so = $write_buffers = $l = $c = $wbs = $wb = $data = $so = NULL;
@@ -630,7 +583,6 @@ final class Core {
                 $fd = $l->socket->fd;
                 $rfd[] = $fd;
                 $fd_lookup_r[(int) $fd] = $l;
-
             }
 
             $next_conn_timeout_mt = NULL;
@@ -643,30 +595,23 @@ final class Core {
 
                     if ($cr === true) {
                         $c->on_Accept();
-
                     } elseif ($cr === false) {
                         $c->on_Connect_Fail(ConnectionHandler::FAIL_CRYPTO);
                         self::Free_Connection($c);
-
                     } else {
                         $fd = $so->fd;
                         $rfd[] = $fd;
                         $fd_lookup_r[(int) $fd] = $c;
-
                     }
-
                 } elseif ($so->connected) {
                     if (!$so->block_reads) {
                         $fd = $so->fd;
                         $rfd[] = $fd;
                         $fd_lookup_r[(int) $fd] = $c;
-
                     }
-
                 } elseif ($so->connect_timeout < $t) {
                     $c->on_Connect_Fail(ConnectionHandler::FAIL_TIMEOUT);
                     self::Free_Connection($c);
-
                 } elseif ($so->pending_connect) {
                     $fd = $so->fd;
                     $wfd[] = $fd;
@@ -674,38 +619,31 @@ final class Core {
 
                     if (!$next_conn_timeout_mt || ($sc->connect_timeout < $next_conn_timeout_mt)) {
                         $next_conn_timeout_mt = $sc->connect_timeout;
-
                     }
-
                 }
-
             }
 
             if (self::$dgram_handlers) foreach (self::$dgram_handlers as $l) if ($l->active) {
                 $fd = $l->socket->fd;
                 $rfd[] = $fd;
                 $fd_lookup_r[(int) $fd] = $l;
-
             }
 
             foreach (self::$write_buffers as $wbs) if ($wbs[0]->socket->blocked) {
                 $fd = $wbs[0]->socket->fd;
                 $wfd[] = $fd;
                 $fd_lookup_w[(int) $fd] = self::$connections[$wbs[0]->socket->id];
-
             }
 
             if (self::$forked_pipes) foreach (self::$forked_pipes as $fp) {
                 $fd = $fp->fd;
                 $rfd[] = $fd;
                 $fd_lookup_r[(int) $fd] = $fp;
-
             }
 
             if (isset($user_streams)) {
                 foreach ((array) $user_streams[0] as $tmp_r) $rfd[] = $tmp_r;
                 foreach ((array) $user_streams[1] as $tmp_w) $wfd[] = $tmp_w;
-
             }
 
             // Main select
@@ -731,16 +669,12 @@ final class Core {
 
                             if ($cr === true) {
                                 $handler->on_Accept();
-
                             } elseif ($cr === false) {
                                 $handler->on_Connect_Fail(ConnectionHandler::FAIL_CRYPTO);
                                 self::Free_Connection($handler);
-
                             }
-
                         } elseif (!$so->connected) {
                             continue;
-
                         }
 
                         $data = $so->Read();
@@ -751,22 +685,17 @@ final class Core {
 
                                 $handler->on_Disconnect();
                                 self::Free_Connection($handler);
-
                             }
-
                         } else {
                             // Data available
 
                             $handler->on_Read($data);
-
                         }
-
                     } elseif ($handler instanceof DatagramHandler) {
                         $from = "";
                         $data = $so->Read_From($from);
 
                         $handler->on_Read($from, $data);
-
                     } elseif ($handler instanceof Listener) {
                         while ($fd = $so->Accept()) {
                             // New connection accepted
@@ -790,33 +719,26 @@ final class Core {
 
                                     if ($sck->Setup()) {
                                         $hnd->on_Accept();
-
                                     }
 
                                     $handler = $hnd = $sck = $l = $c = $wbs = $wb = $fd_lookup_r = $fd_lookup_w = false;
 
                                     break;
-
                                 }
 
                                 $hnd->on_Fork_Done();
 
                                 if (self::$nb_forked_processes >= self::$max_forked_processes) break;
-
                             } else {
                                 self::$connections[$sck->id] = $hnd;
 
                                 if ($sck->Setup()) {
                                     $hnd->on_Accept();
-
                                 }
-
                             }
 
                             $sck = $hnd = NULL;
-
                         }
-
                     } elseif ($handler instanceof IPCSocket) {
                         while ($ipcm = $handler->Read()) {
                             if ((!$ipcq = unserialize($ipcm)) || (!is_object($o = self::$shared_objects[$ipcq["oid"]]))) continue;
@@ -834,20 +756,15 @@ final class Core {
                                 SharedObject::$caller_pid = $handler->pid;
                                 $handler->Write(serialize(call_user_func_array(array($o, $ipcq["func"]), $ipcq["args"])));
                                 break;
-
                             }
-
                         }
 
                         $o = $ipcq = $ipcm = NULL;
-
                     } elseif (!isset($handler)) {
                         // User stream
 
                         $ret[0][] = $act_rfd;
-
                     }
-
                 }
 
                 foreach ($wfd as $act_wfd) {
@@ -858,50 +775,38 @@ final class Core {
                         // User stream
 
                         $ret[1][] = $act_wfd;
-
                     } elseif ($so->connected) {
                         // Unblock buffered write
 
                         if ($so->Eof()) {
                             $handler->on_Disconnect();
                             self::Free_Connection($handler);
-
                         } else {
                             $so->blocked = false;
-
                         }
-
                     } elseif ($so->pending_connect) {
                         // Pending connect
 
                         if ($so->Eof()) {
                             $handler->on_Connect_Fail(ConnectionHandler::FAIL_CONNREFUSED);
                             self::Free_Connection($handler);
-
                         } else {
                             $so->Setup();
                             $so->connected = true;
                             $so->pending_connect = false;
                             $handler->on_Connect();
-
                         }
-
                     }
-
                 }
-
             }
 
             if (self::$nb_forked_processes && !self::$child_process) while ((($pid = pcntl_wait($tmp, WNOHANG)) > 0) && self::$nb_forked_processes--) unset(self::$forked_pipes[$pid]);
 
             if ($ret) {
                 return $ret;
-
             } elseif (isset($exit_mt)) {
                 $exit = $exit_mt <= $t;
-
             }
-
         } while (!$exit);
     }
 }

@@ -65,9 +65,7 @@ abstract class Server extends DatagramHandler {
             case 21:	return "local5";
             case 22:	return "local6";
             case 23:	return "local7";
-
         }
-
     }
 
     /**
@@ -98,9 +96,7 @@ abstract class Server extends DatagramHandler {
             case "local5":	return 21;
             case "local6":	return 22;
             case "local7":	return 23;
-
         }
-
     }
 
     final public function on_Read($from, $data) {
@@ -112,7 +108,6 @@ abstract class Server extends DatagramHandler {
         $msg = substr($data, $p + 1);
 
         $this->on_Event($host, $pri >> 3, $pri & 7, $msg);
-
     }
 
     /**
@@ -124,5 +119,4 @@ abstract class Server extends DatagramHandler {
      * @param string $message
      */
     abstract public function on_Event($host, $facility, $severity, $message);
-
 }

@@ -16,7 +16,5 @@ class ClientException extends namespace\Exception {
         parent::__construct($errmsg, $errno, $addr);
 
         $this->handler = $handler;
-
     }
-
 }

@@ -56,7 +56,6 @@ class Listener {
         $this->handler_classname = $handler_classname;
         $this->handler_options = $handler_options;
         $this->forking = ($forking && is_callable("pcntl_fork"));
-
     }
 
     /**
@@ -70,7 +69,6 @@ class Listener {
      */
     public function Set_Option($wrapper, $opt, $val) {
         return $this->socket->Set_Option($wrapper, $opt, $val);
-
     }
 
     /**
@@ -86,7 +84,6 @@ class Listener {
         $this->forking = $forking;
 
         return true;
-
     }
 
     /**
@@ -99,12 +96,9 @@ class Listener {
         try {
             if ($ret = $this->socket->Listen()) $this->active = true;
             return $ret;
-
         } catch (ServerException $e) {
             throw new ServerException($e->getMessage(), $e->getCode(), $e->addr, $this);
-
         }
-
     }
 
     /**
@@ -114,7 +108,6 @@ class Listener {
     public function Deactivate() {
         $this->socket->Close();
         $this->active = false;
-
     }
 
     /**
@@ -122,7 +115,5 @@ class Listener {
      */
     public function __destruct() {
         $this->Deactivate();
-
     }
-
 }

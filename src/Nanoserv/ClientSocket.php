@@ -41,7 +41,6 @@ class ClientSocket extends namespace\Socket {
 
         if (($proto === "udp") || ($proto === "unix")) {
             $this->real_address = $addr;
-
         } else {
             $this->real_address = "tcp:" . $s;
 
@@ -52,11 +51,8 @@ class ClientSocket extends namespace\Socket {
                 case "sslv3":	$this->crypto_type = STREAM_CRYPTO_METHOD_SSLv3_CLIENT;		break;
 
                 default:		if (defined($cname = "STREAM_CRYPTO_METHOD_".strtoupper($proto)."_CLIENT")) $this->crypto_type = constant($cname);
-
             }
-
         }
-
     }
 
     /**
@@ -73,7 +69,6 @@ class ClientSocket extends namespace\Socket {
 
         if ($this->fd === false) {
             throw new ClientException("cannot connect to {$this->real_address}: {$errstr}", $errno, $this->real_address);
-
         }
 
         if ($timeout === false) $timeout = self::CONNECT_TIMEOUT;
@@ -85,7 +80,5 @@ class ClientSocket extends namespace\Socket {
         $this->Set_Timeout(0);
 
         return true;
-
     }
-
 }
