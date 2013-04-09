@@ -263,9 +263,9 @@ abstract class Server extends Nanoserv\ConnectionHandler {
      */
     public function Set_Compression($opt = self::COMPRESS_AUTO) {
         switch ($opt) {
-            case self::COMPRESS_AUTO:	$this->compress = extension_loaded("zlib") ? self::COMPRESS_AUTO : self::COMPRESS_OFF;		break;
-            case self::COMPRESS_OFF:	$this->compress = $opt;																		break;
-            default:					throw new Nanoserv\Exception("invalid compress option '{$opt}'");
+            case self::COMPRESS_AUTO:   $this->compress = extension_loaded("zlib") ? self::COMPRESS_AUTO : self::COMPRESS_OFF;      break;
+            case self::COMPRESS_OFF:    $this->compress = $opt;                                                                     break;
+            default:                    throw new Nanoserv\Exception("invalid compress option '{$opt}'");
         }
     }
 
@@ -277,9 +277,9 @@ abstract class Server extends Nanoserv\ConnectionHandler {
      * @return bool
      */
     protected function Compress_Response(&$data, &$encoding = NULL) {
-        $methods = array(	"deflate"	=> "gzdeflate",
-                            "gzip"		=> "gzencode",
-                            "compress"	=> "gzcompress");
+        $methods = array(   "deflate"   => "gzdeflate",
+                            "gzip"      => "gzencode",
+                            "compress"  => "gzcompress");
 
         foreach ($methods as $m => $func) {
             if (strpos($this->request_headers["ACCEPT-ENCODING"], $m) !== false) {

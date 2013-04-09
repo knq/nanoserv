@@ -45,12 +45,12 @@ class ClientSocket extends namespace\Socket {
             $this->real_address = "tcp:" . $s;
 
             if ($proto != "tcp") switch ($proto) {
-                case "ssl":		$this->crypto_type = STREAM_CRYPTO_METHOD_SSLv23_CLIENT;	break;
-                case "tls":		$this->crypto_type = STREAM_CRYPTO_METHOD_TLS_CLIENT;		break;
-                case "sslv2":	$this->crypto_type = STREAM_CRYPTO_METHOD_SSLv2_CLIENT;		break;
-                case "sslv3":	$this->crypto_type = STREAM_CRYPTO_METHOD_SSLv3_CLIENT;		break;
+                case "ssl":     $this->crypto_type = STREAM_CRYPTO_METHOD_SSLv23_CLIENT;    break;
+                case "tls":     $this->crypto_type = STREAM_CRYPTO_METHOD_TLS_CLIENT;       break;
+                case "sslv2":   $this->crypto_type = STREAM_CRYPTO_METHOD_SSLv2_CLIENT;     break;
+                case "sslv3":   $this->crypto_type = STREAM_CRYPTO_METHOD_SSLv3_CLIENT;     break;
 
-                default:		if (defined($cname = "STREAM_CRYPTO_METHOD_".strtoupper($proto)."_CLIENT")) $this->crypto_type = constant($cname);
+                default:        if (defined($cname = "STREAM_CRYPTO_METHOD_".strtoupper($proto)."_CLIENT")) $this->crypto_type = constant($cname);
             }
         }
     }

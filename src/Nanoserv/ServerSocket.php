@@ -38,10 +38,10 @@ class ServerSocket extends namespace\Socket {
             $this->real_address = "tcp:" . strtok("");
 
             if ($proto !== "tcp") switch ($proto) {
-                case "ssl":		$this->crypto_type = STREAM_CRYPTO_METHOD_SSLv23_SERVER;	break;
-                case "tls":		$this->crypto_type = STREAM_CRYPTO_METHOD_TLS_SERVER;		break;
-                case "sslv2":	$this->crypto_type = STREAM_CRYPTO_METHOD_SSLv2_SERVER;		break;
-                case "sslv3":	$this->crypto_type = STREAM_CRYPTO_METHOD_SSLv3_SERVER;		break;
+                case "ssl":     $this->crypto_type = STREAM_CRYPTO_METHOD_SSLv23_SERVER;    break;
+                case "tls":     $this->crypto_type = STREAM_CRYPTO_METHOD_TLS_SERVER;       break;
+                case "sslv2":   $this->crypto_type = STREAM_CRYPTO_METHOD_SSLv2_SERVER;     break;
+                case "sslv3":   $this->crypto_type = STREAM_CRYPTO_METHOD_SSLv3_SERVER;     break;
 
                 default:
 

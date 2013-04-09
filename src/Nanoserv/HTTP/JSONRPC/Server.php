@@ -52,10 +52,10 @@ abstract class Server extends Nanoserv\HTTP\Server {
             $this->Set_Response_Status(400);
 
             switch (json_last_error()) {
-                case JSON_ERROR_DEPTH:		$ret["error"] = "The maximum stack depth has been exceeded";				break;
-                case JSON_ERROR_CTRL_CHAR:	$ret["error"] = "Control character error, possibly incorrectly encoded";	break;
-                case JSON_ERROR_SYNTAX:		$ret["error"] = "Syntax error";												break;
-                default:					$ret["error"] = "Unknown error";											break;
+                case JSON_ERROR_DEPTH:      $ret["error"] = "The maximum stack depth has been exceeded";                break;
+                case JSON_ERROR_CTRL_CHAR:  $ret["error"] = "Control character error, possibly incorrectly encoded";    break;
+                case JSON_ERROR_SYNTAX:     $ret["error"] = "Syntax error";                                             break;
+                default:                    $ret["error"] = "Unknown error";                                            break;
             }
 
             return json_encode($ret);

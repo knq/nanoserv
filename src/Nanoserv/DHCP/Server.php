@@ -205,30 +205,30 @@ class Message {
 
     public function Op_To_String() {
         switch ($this->op) {
-            case self::BOOTP_REQUEST:	return "BOOTPREQUEST";
-            case self::BOOTP_REPLY:		return "BOOTPREPLY";
-            default:					return "unknown";
+            case self::BOOTP_REQUEST:   return "BOOTPREQUEST";
+            case self::BOOTP_REPLY:     return "BOOTPREPLY";
+            default:                    return "unknown";
         }
     }
 
     public function Htype_To_String() {
         switch ($this->htype) {
-            case self::HTYPE_ETHERNET:	return "Ethernet";
-            default:					return "unknown";
+            case self::HTYPE_ETHERNET:  return "Ethernet";
+            default:                    return "unknown";
         }
     }
 
     public function Msg_Type_To_String() {
         switch ($this->options->dhcp_msg_type) {
-            case self::DHCP_DISCOVER:	return "DHCPDISCOVER";
-            case self::DHCP_OFFER:		return "DHCPOFFER";
-            case self::DHCP_REQUEST:	return "DHCPREQUEST";
-            case self::DHCP_DECLINE:	return "DHCPDECLINE";
-            case self::DHCP_ACK:		return "DHCPACK";
-            case self::DHCP_NAK:		return "DHCPNAK";
-            case self::DHCP_RELEASE:	return "DHCPRELEASE";
-            case self::DHCP_INFORM:		return "DHCPINFORM";
-            default:					return "unknown";
+            case self::DHCP_DISCOVER:   return "DHCPDISCOVER";
+            case self::DHCP_OFFER:      return "DHCPOFFER";
+            case self::DHCP_REQUEST:    return "DHCPREQUEST";
+            case self::DHCP_DECLINE:    return "DHCPDECLINE";
+            case self::DHCP_ACK:        return "DHCPACK";
+            case self::DHCP_NAK:        return "DHCPNAK";
+            case self::DHCP_RELEASE:    return "DHCPRELEASE";
+            case self::DHCP_INFORM:     return "DHCPINFORM";
+            default:                    return "unknown";
         }
     }
 
