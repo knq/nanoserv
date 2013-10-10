@@ -661,9 +661,9 @@ final class Core {
             if (($rfd || $wfd) && (@stream_select($rfd, $wfd, $efd, $tv_sec, $tv_usec))) {
                 foreach ($rfd as $act_rfd) {
                     $handler = $fd_lookup_r[(int) $act_rfd];
-                    $so = $handler->socket;
 
                     if ($handler instanceof ConnectionHandler) {
+                        $so = $handler->socket;
                         if ($so->pending_crypto) {
                             $cr = $so->Enable_Crypto();
 
@@ -692,11 +692,13 @@ final class Core {
                             $handler->on_Read($data);
                         }
                     } elseif ($handler instanceof DatagramHandler) {
+                        $so = $handler->socket;
                         $from = "";
                         $data = $so->Read_From($from);
 
                         $handler->on_Read($from, $data);
                     } elseif ($handler instanceof Listener) {
+                        $so = $handler->socket;
                         while ($fd = $so->Accept()) {
                             // New connection accepted
 
